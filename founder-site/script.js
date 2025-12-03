@@ -191,8 +191,12 @@ function onGestureResults(results) {
     canvasCtx.translate(canvasElement.width, 0);
     canvasCtx.scale(-1, 1);
 
+    // 1. Draw Video Background (Restored)
+    canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+
+    // 2. Draw Overlay/HUD
     if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-        // logToScreen("检测到手!"); // Spammy but useful for first detect
+        // logToScreen("检测到手!"); 
         const landmarks = results.multiHandLandmarks[0];
         
         // Draw Digital Skeleton
