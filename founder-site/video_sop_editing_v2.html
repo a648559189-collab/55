@@ -133,9 +133,10 @@ classDef leaf2 fill:#fff,stroke:#9c27b0,color:#333;
             document.getElementById('btn-wrap').innerText = `文字换行: ${isWrapped ? '开' : '关'}`;
         }
 
-        if (window.innerWidth < 768) {
-            currentDirection = 'TD'; 
-        }
+        // Default to LR even on mobile (User Preference)
+        // if (window.innerWidth < 768) {
+        //     currentDirection = 'TD'; 
+        // }
         
         document.addEventListener('DOMContentLoaded', () => {
             updateStatus();
