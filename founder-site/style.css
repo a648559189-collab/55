@@ -553,3 +553,67 @@ main {
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg-core); }
 ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+/* ========== 移动端适配 ========== */
+@media (max-width: 768px) {
+  body {
+    flex-direction: column;
+    overflow-y: auto;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  #mobile-menu-btn {
+    display: block !important;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1000;
+    background: rgba(10, 14, 23, 0.9);
+    border: 1px solid var(--accent-blue);
+    color: var(--accent-blue);
+    font-size: 1.5rem;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+  }
+
+  aside {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 260px;
+    transform: translateX(-100%);
+    background: rgba(10, 14, 23, 0.98);
+    transition: transform 0.3s ease;
+    z-index: 1001;
+  }
+
+  aside.active {
+    transform: translateX(0);
+  }
+
+  main {
+    padding: 70px 15px 30px 15px;
+    transform: none !important;
+    width: 100%;
+  }
+
+  #app-container {
+    display: block;
+    height: auto;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mindmap-layout {
+    flex-direction: column !important;
+    height: auto !important;
+  }
+
+  .intro-title {
+    font-size: 1.4rem;
+  }
+}
