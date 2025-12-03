@@ -270,6 +270,16 @@
         </div>
     </div>
 
+    <!-- Audio System -->
+    <audio id="bg-music" loop>
+        <source src="bgm.flac" type="audio/flac">
+    </audio>
+    
+    <!-- Mute Toggle Button -->
+    <div id="audio-toggle" style="position:fixed; bottom:20px; right:20px; width:40px; height:40px; background:rgba(10,14,23,0.8); border:1px solid var(--accent-blue); border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:10000; transition:all 0.3s; box-shadow:0 0 10px rgba(0,194,255,0.2);">
+        <span id="audio-icon" style="font-size:1.2rem;">🔇</span>
+    </div>
+
     <!-- Cache Buster for JS -->
     <script>
         const v = new Date().getTime();
@@ -279,7 +289,7 @@
 
     <!-- Version Watermark -->
     <div style="position:fixed; bottom:5px; left:5px; font-size:10px; color:rgba(255,255,255,0.3); z-index:9999; font-family:monospace; pointer-events:none;">
-        System v12.03.2215
+        System v12.03.2250
     </div>
 </body>
 </html>

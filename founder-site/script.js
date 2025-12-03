@@ -18,6 +18,88 @@ function logToScreen(msg) {
     console.log(msg);
 }
 
+// --- Audio Manager (Synthetic SFX + BGM) ---
+const AudioManager = {
+    ctx: null,
+    bgm: null,
+    isMuted: true,
+
+    init: function() {
+        if (!this.ctx) {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            this.bgm = document.getElementById('bg-music');
+            this.bgm.volume = 0.2; // Low volume
+            
+            // Setup Toggle
+            const btn = document.getElementById('audio-toggle');
+            btn.onclick = () => this.toggleBGM();
+        }
+    },
+
+    toggleBGM: function() {
+        if (!this.ctx) this.init();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+
+        const icon = document.getElementById('audio-icon');
+        const btn = document.getElementById('audio-toggle');
+
+        if (this.bgm.paused) {
+            this.bgm.play().then(() => {
+                this.isMuted = false;
+                icon.innerText = '🎵';
+                btn.style.boxShadow = '0 0 20px var(--accent-blue)';
+                this.playClick(); // Feedback
+            }).catch(e => console.log("Audio blocked", e));
+        } else {
+            this.bgm.pause();
+            this.isMuted = true;
+            icon.innerText = '🔇';
+            btn.style.boxShadow = 'none';
+        }
+    },
+
+    playClick: function() {
+        if (this.isMuted || !this.ctx) return;
+        // Heal Sound: Gentle Sine Wave (Water Drop style)
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(400, this.ctx.currentTime + 0.1);
+        
+        gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.15);
+    },
+
+    playUnlock: function() {
+        if (this.isMuted || !this.ctx) return;
+        // Success Sound: Sci-fi Rising Tone
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(200, this.ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(800, this.ctx.currentTime + 0.3);
+        
+        gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.5);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.5);
+    }
+};
+
+
 function initApp() {
     // 1. Intro Animation (Gesture)
     setupGestureIntro();
@@ -29,6 +111,9 @@ function initApp() {
 
     // 3. Event Listeners
     setupInteractions();
+    
+    // 4. Audio Init (Lazy)
+    document.body.addEventListener('click', () => AudioManager.init(), { once: true });
 }
 
 function renderAttendanceCalendar_OLD() {
@@ -284,6 +369,9 @@ function detectThumbsUpSimplified(landmarks) {
 function triggerSuccess() {
     if (isGesturing) return;
     isGesturing = true;
+
+    // Play SFX
+    AudioManager.playUnlock();
 
     // Visual Feedback
     const container = document.querySelector('.gesture-container');
@@ -574,6 +662,14 @@ function openMindmap(url) {
 }
 
 function setupInteractions() {
+    // Global UI Sound
+    document.addEventListener('click', (e) => {
+        const target = e.target.closest('button, .nav-item, .tech-card, .cal-day.work, .mindmap-item');
+        if (target) {
+            AudioManager.playClick();
+        }
+    });
+
     // Nav Clicking
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', (e) => {
