@@ -117,22 +117,48 @@ const AudioManager = {
     },
     
     playUnlock: function() {
-        if (!this.ctx) return;
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(200, this.ctx.currentTime);
-        osc.frequency.linearRampToValueAtTime(800, this.ctx.currentTime + 0.3);
-        
-        gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.5);
+        // Ensure context exists
+        if (!this.ctx) {
+             this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        // Force resume if suspended (browser policy)
+        if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
 
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
+        const t = this.ctx.currentTime;
         
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.5);
+        // Layer 1: High Pitch "Ping" (Sine)
+        const osc1 = this.ctx.createOscillator();
+        const gain1 = this.ctx.createGain();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(880, t); // A5
+        osc1.frequency.exponentialRampToValueAtTime(1760, t + 0.1); // Slide up
+        
+        gain1.gain.setValueAtTime(0.3, t);
+        gain1.gain.exponentialRampToValueAtTime(0.01, t + 0.8);
+
+        osc1.connect(gain1);
+        gain1.connect(this.ctx.destination);
+        
+        osc1.start(t);
+        osc1.stop(t + 0.8);
+
+        // Layer 2: Impact Bass (Square)
+        const osc2 = this.ctx.createOscillator();
+        const gain2 = this.ctx.createGain();
+        osc2.type = 'square';
+        osc2.frequency.setValueAtTime(220, t);
+        osc2.frequency.exponentialRampToValueAtTime(55, t + 0.4); // Slide down
+        
+        gain2.gain.setValueAtTime(0.1, t);
+        gain2.gain.linearRampToValueAtTime(0, t + 0.4);
+
+        osc2.connect(gain2);
+        gain2.connect(this.ctx.destination);
+        
+        osc2.start(t);
+        osc2.stop(t + 0.4);
     }
 };
 
