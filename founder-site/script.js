@@ -117,59 +117,55 @@ function onGestureResults(results) {
     canvasCtx.save();
     canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
     
-    // Draw video frame? No, let's keep it transparent "HUD" style or draw simplified
-    // Actually, drawing the image helps user position hand.
-    // We mirror it:
+    // 1. REMOVED: Draw video frame (User requested no real-time video)
+    // canvasCtx.translate(canvasElement.width, 0);
+    // canvasCtx.scale(-1, 1);
+    // canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+
+    // We still need to mirror for the skeleton to match user movement naturally
     canvasCtx.translate(canvasElement.width, 0);
     canvasCtx.scale(-1, 1);
-    canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
 
     if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
         const landmarks = results.multiHandLandmarks[0];
         
-        // Draw skeleton
+        // 2. Draw Digital Skeleton Only (HUD Style)
         drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {color: '#00C2FF', lineWidth: 2});
-        drawLandmarks(canvasCtx, landmarks, {color: '#FF6C37', lineWidth: 1, radius: 3});
+        drawLandmarks(canvasCtx, landmarks, {color: '#FF6C37', lineWidth: 2, radius: 4});
 
-        // Check for Thumbs Up
-        if (detectThumbsUp(landmarks)) {
+        // Check for Thumbs Up (Simplified Logic)
+        if (detectThumbsUpSimplified(landmarks)) {
             triggerSuccess();
         }
+    } else {
+        // Optional: Draw a "Scanning Grid" or idle state when no hand is found
     }
     canvasCtx.restore();
 }
 
-function detectThumbsUp(landmarks) {
-    // Points: 
-    // Thumb: 1, 2, 3, 4 (Tip)
-    // Index: 5, 6, 7, 8 (Tip)
-    // Middle: 9, 10, 11, 12 (Tip)
-    // Ring: 13, 14, 15, 16 (Tip)
-    // Pinky: 17, 18, 19, 20 (Tip)
-
+function detectThumbsUpSimplified(landmarks) {
+    // Points: Thumb Tip (4), Index Tip (8), Middle Tip (12)...
     const thumbTip = landmarks[4];
     const thumbIP = landmarks[3];
     const indexTip = landmarks[8];
-    const indexPIP = landmarks[6];
     const middleTip = landmarks[12];
-    const middlePIP = landmarks[10];
     const ringTip = landmarks[16];
-    const ringPIP = landmarks[14];
     const pinkyTip = landmarks[20];
-    const pinkyPIP = landmarks[18];
 
-    // 1. Thumb is extended (Tip is significantly higher/lower than IP depending on orientation?)
-    // Let's assume "Upright" Thumbs Up. Thumb Tip Y < Thumb IP Y (Y increases downwards)
+    // Logic 1: Thumb Tip must be "higher" (smaller Y) than Thumb Joint (IP)
     const isThumbUp = thumbTip.y < thumbIP.y;
 
-    // 2. Other fingers are curled (Tip Y > PIP Y)
-    const isIndexCurled = indexTip.y > indexPIP.y;
-    const isMiddleCurled = middleTip.y > middlePIP.y;
-    const isRingCurled = ringTip.y > ringPIP.y;
-    const isPinkyCurled = pinkyTip.y > pinkyPIP.y;
+    // Logic 2: Thumb Tip must be the HIGHEST point among all fingertips (roughly)
+    // allowing some margin for error.
+    // Y increases downwards. So Smallest Y = Highest point.
+    const isThumbHighest = 
+        thumbTip.y < indexTip.y &&
+        thumbTip.y < middleTip.y &&
+        thumbTip.y < ringTip.y &&
+        thumbTip.y < pinkyTip.y;
 
-    // Simple check
-    return isThumbUp && isIndexCurled && isMiddleCurled && isRingCurled && isPinkyCurled;
+    // Return true if both conditions met
+    return isThumbUp && isThumbHighest;
 }
 
 function triggerSuccess() {
