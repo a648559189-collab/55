@@ -92,14 +92,20 @@ function setupGestureIntro() {
                     const canvas = document.getElementById('output_canvas');
                     const container = document.querySelector('.gesture-container');
                     
-                    // Adjust canvas resolution
+                    // 1. Match internal canvas resolution
                     canvas.width = videoElement.videoWidth;
                     canvas.height = videoElement.videoHeight;
                     
-                    // Adjust container aspect ratio if needed (optional, but good for UI)
-                    // For now let css handle visual size, but canvas internal res matches video
-
+                    // 2. FIX ASPECT RATIO (Mobile Portrait)
+                    // Calculate display height based on fixed width (320px)
+                    // aspect = h / w
+                    const aspectRatio = videoElement.videoHeight / videoElement.videoWidth;
+                    const newHeight = 320 * aspectRatio;
                     
+                    container.style.height = `${newHeight}px`;
+                    container.style.width = '320px'; // Keep width fixed
+                    logToScreen(`调整容器: 320x${Math.round(newHeight)}`);
+
                     videoElement.play();
                     isCameraRunning = true;
                     clearTimeout(timeoutId);
@@ -133,6 +139,7 @@ function setupGestureIntro() {
     };
 }
 
+let hasLoggedFrame = false;
 async function processVideoFrame() {
     if (!isCameraRunning) return;
     
@@ -140,6 +147,10 @@ async function processVideoFrame() {
     try {
         if (hands && videoElement && videoElement.readyState >= 2) {
             await hands.send({image: videoElement});
+            if (!hasLoggedFrame) {
+                logToScreen("✅ AI正在逐帧分析中...");
+                hasLoggedFrame = true;
+            }
         }
     } catch (e) {
         // logToScreen("帧处理错误: " + e.message); // Don't spam
