@@ -291,13 +291,25 @@ function setupGestureIntro() {
     };
 }
 
-let hasLoggedFrame = false;
+let lastProcessTime = 0;
+const FPS_LIMIT = 15; // Limit to 15 FPS to save CPU for Audio
+const FRAME_INTERVAL = 1000 / FPS_LIMIT;
+
 async function processVideoFrame() {
     if (!isCameraRunning) return;
     
+    const now = Date.now();
     const videoElement = document.getElementById('input_video');
+    
+    // Throttling
+    if (now - lastProcessTime < FRAME_INTERVAL) {
+        requestAnimationFrame(processVideoFrame);
+        return;
+    }
+
     try {
         if (hands && videoElement && videoElement.readyState >= 2) {
+            lastProcessTime = now; // Update timestamp only when we process
             await hands.send({image: videoElement});
             if (!hasLoggedFrame) {
                 logToScreen("✅ AI正在逐帧分析中...");
