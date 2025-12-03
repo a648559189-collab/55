@@ -2,9 +2,11 @@ document.addEventListener('DOMContentLoaded', () => {
     initApp();
 });
 
-let camera = null;
+let camera = null; // Not used as object anymore, but as stream flag
+let cameraStream = null;
 let hands = null;
 let isGesturing = false;
+let isCameraRunning = false;
 
 function initApp() {
     // 1. Intro Animation (Gesture)
@@ -29,10 +31,10 @@ function setupGestureIntro() {
 
     // 1. Timeout Guard (8s)
     const timeoutId = setTimeout(() => {
-        if (!camera) {
+        if (!isCameraRunning) {
             statusText.innerHTML = '<span class="text-orange">连接超时，请使用下方手动模式</span>';
             manualBtn.style.opacity = 1;
-            manualBtn.classList.add('blink'); // Attract attention
+            manualBtn.classList.add('blink');
         }
     }, 8000);
 
@@ -44,40 +46,48 @@ function setupGestureIntro() {
 
         hands.setOptions({
             maxNumHands: 1,
-            modelComplexity: 0, // Lite model for faster loading on mobile
-            minDetectionConfidence: 0.6,
+            modelComplexity: 0, // Lite model for mobile
+            minDetectionConfidence: 0.5, // Lower threshold for easier mobile detection
             minTrackingConfidence: 0.5
         });
 
         hands.onResults(onGestureResults);
 
-        // Start Camera
+        // Start Camera (Native getUserMedia for Mobile Front Cam)
         const videoElement = document.getElementById('input_video');
         
-        camera = new Camera(videoElement, {
-            onFrame: async () => {
-                if(hands) await hands.send({image: videoElement});
-            },
-            width: 320,
-            height: 240
-        });
+        const constraints = {
+            video: {
+                facingMode: 'user', // Force Front Camera
+                width: { ideal: 640 },
+                height: { ideal: 480 }
+            }
+        };
 
         statusText.innerHTML = '<span class="blink">●</span> 正在调用视觉传感器...';
 
-        camera.start()
-            .then(() => {
-                clearTimeout(timeoutId); // Success!
-                statusText.innerHTML = '<span class="text-blue">● 视觉系统上线. 正在扫描...</span>';
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then(stream => {
+                cameraStream = stream;
+                videoElement.srcObject = stream;
+                videoElement.onloadedmetadata = () => {
+                    videoElement.play();
+                    isCameraRunning = true;
+                    clearTimeout(timeoutId);
+                    statusText.innerHTML = '<span class="text-blue">● 视觉系统上线. 正在扫描...</span>';
+                    // Start Processing Loop
+                    requestAnimationFrame(processVideoFrame);
+                };
             })
             .catch(err => {
-                console.error(err);
+                console.error('Camera Error:', err);
                 clearTimeout(timeoutId);
-                statusText.innerHTML = '<span class="text-orange">! 摄像头访问被拒绝或不可用</span>';
+                statusText.innerHTML = '<span class="text-orange">! 无法访问前置摄像头</span>';
                 manualBtn.style.opacity = 1;
             });
 
     } catch (e) {
-        console.error('MediaPipe Init Failed', e);
+        console.error('Init Failed', e);
         clearTimeout(timeoutId);
         statusText.innerText = '系统初始化失败，请使用手动模式';
         manualBtn.style.opacity = 1;
@@ -90,17 +100,28 @@ function setupGestureIntro() {
     };
 }
 
+async function processVideoFrame() {
+    if (!isCameraRunning) return;
+    
+    const videoElement = document.getElementById('input_video');
+    if (hands && videoElement && videoElement.readyState >= 2) {
+        await hands.send({image: videoElement});
+    }
+    
+    if (isCameraRunning) {
+        requestAnimationFrame(processVideoFrame);
+    }
+}
+
 function stopCamera() {
+    isCameraRunning = false;
     try {
-        // Stop MediaPipe Camera Utils
-        if (camera) {
-            // camera.stop(); // Sometimes buggy in library
-            camera = null;
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(track => track.stop());
+            cameraStream = null;
         }
-        // Force stop video tracks
         const videoElement = document.getElementById('input_video');
-        if (videoElement && videoElement.srcObject) {
-            videoElement.srcObject.getTracks().forEach(track => track.stop());
+        if (videoElement) {
             videoElement.srcObject = null;
         }
     } catch(e) {

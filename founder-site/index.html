@@ -30,7 +30,8 @@
             
             <!-- Camera/Gesture Area -->
             <div class="gesture-container neon-border-flow">
-                <video id="input_video" style="display:none;" playsinline muted autoplay></video>
+                <!-- iOS Fix: Do not use display:none, use opacity:0 -->
+                <video id="input_video" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; opacity:0; pointer-events:none;" playsinline muted autoplay></video>
                 <canvas id="output_canvas" width="320" height="240"></canvas>
                 
                 <!-- Scanning Overlay -->
