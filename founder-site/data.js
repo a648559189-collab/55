@@ -14,7 +14,7 @@ const LOG_DATA = [
         id: 4,
         date: "2025-12-03",
         weekday: "周三",
-        title: "二剪进阶 & 养号策略",
+        title: "二剪进阶 & 养号策略 (New)",
         type: "study",
         tags: ["二剪", "SOP", "会议记录"],
         tasks: [
