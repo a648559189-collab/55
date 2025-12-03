@@ -205,16 +205,20 @@
                     <div class="tech-card">
                         <div class="card-title">
                             <span>📅 筑梦出勤表</span>
-                            <span class="card-tag" id="cal-month-label">11月</span>
+                            <span class="card-tag">Streak</span>
                         </div>
+                        
+                        <!-- Month Navigation -->
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:0.9rem; color:var(--accent-blue);">
+                            <span style="cursor:pointer; padding:0 5px;" onclick="changeMonth(-1)">❮</span>
+                            <span id="cal-month-title" style="font-weight:bold;">2025年 12月</span>
+                            <span style="cursor:pointer; padding:0 5px;" onclick="changeMonth(1)">❯</span>
+                        </div>
+
                         <div class="calendar-grid" id="attendance-calendar">
-                            <!-- JS Injected Days -->
-                        </div>
-                        <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 10px; text-align: center;">
-                            *每月 1, 2, 17, 18 号休息充电
+                            <!-- JS Injected -->
                         </div>
                     </div>
-
                 </div>
             </div>
 

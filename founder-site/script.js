@@ -25,10 +25,14 @@ function initApp() {
     // 2. Data Rendering
     loadUserProfile();
     loadDailyLog(LOG_DATA[0]); // Load latest
-    renderAttendanceCalendar();
+    renderAttendanceCalendar(); // Default to current month
 
     // 3. Event Listeners
     setupInteractions();
+}
+
+function renderAttendanceCalendar_OLD() {
+    // Removed
 }
 
 // --- 1. Epic Gesture Intro ---
@@ -465,61 +469,79 @@ function switchMindmap(log) {
     btn.onclick = () => openMindmap(log.mindmapUrl);
 }
 
-function renderGrowthChart() {
-    // Removed
-}
+// --- Calendar Logic (New) ---
+let currentCalendarDate = new Date();
+
+window.changeMonth = (delta) => {
+    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
+    renderAttendanceCalendar();
+};
 
 function renderAttendanceCalendar() {
-    const container = document.getElementById('attendance-calendar');
-    container.innerHTML = '';
+    const calendar = document.getElementById('attendance-calendar');
+    const monthTitle = document.getElementById('cal-month-title');
+    if (!calendar) return;
+
+    calendar.innerHTML = '';
     
-    // Config: Current Month (Demo: Dec 2025)
-    // Use Nov/Dec mix for demo since data is Nov 30
-    const currentYear = 2025;
-    const currentMonth = 11; // Showing Nov data primarily or Dec?
-    // Let's stick to Dec view but maybe include prev days? 
-    // Actually, user mentioned 11.30. Let's show Nov/Dec transition or just Nov?
-    // The code had Dec (12). 11.30 is not in Dec.
-    // Let's change to Nov for better demo alignment.
-    const displayMonth = 11; 
-    const displayYear = 2025;
-    const daysInMonth = 30; 
-    const restDays = [1, 2, 17, 18]; // Fixed rest days
+    const year = currentCalendarDate.getFullYear();
+    const month = currentCalendarDate.getMonth();
+    
+    // Update Title
+    if (monthTitle) {
+        monthTitle.innerText = `${year}年 ${month + 1}月`;
+    }
 
-    document.getElementById('cal-month-label').innerText = `${displayMonth}月`;
+    // Calendar Logic
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const totalDays = lastDay.getDate();
+    const startingDay = firstDay.getDay(); // 0 = Sunday
 
-    for (let i = 1; i <= daysInMonth; i++) {
+    // Headers
+    const weekDays = ['日','一','二','三','四','五','六'];
+    weekDays.forEach(d => {
+        const el = document.createElement('div');
+        el.innerText = d;
+        el.style.fontSize = '0.7rem';
+        el.style.color = '#666';
+        el.style.textAlign = 'center';
+        calendar.appendChild(el);
+    });
+
+    // Empty slots for start
+    for (let i = 0; i < startingDay; i++) {
+        const el = document.createElement('div');
+        calendar.appendChild(el);
+    }
+
+    // Days
+    const todayStr = new Date().toISOString().split('T')[0];
+    
+    for (let i = 1; i <= totalDays; i++) {
         const dayDiv = document.createElement('div');
-        const isRest = restDays.includes(i);
-        
-        // Format Date String for check: YYYY-MM-DD
-        const dateStr = `${displayYear}-${String(displayMonth).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-        // Check if we have a log for this date
-        const hasLog = LOG_DATA.some(l => l.date === dateStr);
-        
-        // Visual checkmark for "attendance"
-        const isChecked = USER_PROFILE.attendanceLog && USER_PROFILE.attendanceLog.includes(dateStr);
-
-        dayDiv.className = `cal-day ${isRest ? 'rest' : 'work'} ${isChecked ? 'checked' : ''}`;
+        dayDiv.className = 'cal-day work';
         dayDiv.innerText = i;
         
-        // Add indicator dot if there is a log
-        if (hasLog) {
-            dayDiv.style.borderBottom = '2px solid var(--accent-blue)';
-        }
+        // Format YYYY-MM-DD
+        const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
         
-        if (!isRest) {
-            dayDiv.onclick = () => {
-                // Switch View
-                switchDateView(dateStr);
-                
-                // Highlight selection
-                document.querySelectorAll('.cal-day').forEach(d => d.style.background = '');
-                dayDiv.style.background = 'rgba(0, 194, 255, 0.2)';
-            };
+        // Check if attended
+        if (USER_PROFILE.attendanceLog.includes(dateStr)) {
+            dayDiv.classList.add('checked');
+            dayDiv.title = "已筑梦";
         }
 
-        container.appendChild(dayDiv);
+        // Future check
+        if (dateStr > todayStr) {
+            dayDiv.classList.remove('work');
+            dayDiv.classList.add('rest');
+            dayDiv.style.opacity = '0.3';
+        } else {
+            dayDiv.onclick = () => switchDateView(dateStr);
+        }
+
+        calendar.appendChild(dayDiv);
     }
 }
 
