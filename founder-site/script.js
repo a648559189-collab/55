@@ -22,8 +22,19 @@ function initApp() {
 // --- 1. Epic Gesture Intro ---
 function setupGestureIntro() {
     const statusText = document.getElementById('gesture-status');
-    const introLayer = document.getElementById('intro-layer');
     const manualBtn = document.getElementById('btn-manual-start');
+    
+    // 0. Cleanup first
+    stopCamera();
+
+    // 1. Timeout Guard (8s)
+    const timeoutId = setTimeout(() => {
+        if (!camera) {
+            statusText.innerHTML = '<span class="text-orange">连接超时，请使用下方手动模式</span>';
+            manualBtn.style.opacity = 1;
+            manualBtn.classList.add('blink'); // Attract attention
+        }
+    }, 8000);
 
     // Initialize MediaPipe Hands
     try {
@@ -33,8 +44,8 @@ function setupGestureIntro() {
 
         hands.setOptions({
             maxNumHands: 1,
-            modelComplexity: 1,
-            minDetectionConfidence: 0.7,
+            modelComplexity: 0, // Lite model for faster loading on mobile
+            minDetectionConfidence: 0.6,
             minTrackingConfidence: 0.5
         });
 
@@ -42,32 +53,59 @@ function setupGestureIntro() {
 
         // Start Camera
         const videoElement = document.getElementById('input_video');
+        
         camera = new Camera(videoElement, {
             onFrame: async () => {
-                await hands.send({image: videoElement});
+                if(hands) await hands.send({image: videoElement});
             },
             width: 320,
             height: 240
         });
 
+        statusText.innerHTML = '<span class="blink">●</span> 正在调用视觉传感器...';
+
         camera.start()
             .then(() => {
+                clearTimeout(timeoutId); // Success!
                 statusText.innerHTML = '<span class="text-blue">● 视觉系统上线. 正在扫描...</span>';
             })
             .catch(err => {
                 console.error(err);
-                statusText.innerHTML = '<span class="text-orange">! 摄像头访问失败</span>';
+                clearTimeout(timeoutId);
+                statusText.innerHTML = '<span class="text-orange">! 摄像头访问被拒绝或不可用</span>';
                 manualBtn.style.opacity = 1;
             });
 
     } catch (e) {
         console.error('MediaPipe Init Failed', e);
+        clearTimeout(timeoutId);
         statusText.innerText = '系统初始化失败，请使用手动模式';
         manualBtn.style.opacity = 1;
     }
 
     // Manual Fallback
-    manualBtn.onclick = () => launchSystem();
+    manualBtn.onclick = () => {
+        stopCamera();
+        launchSystem();
+    };
+}
+
+function stopCamera() {
+    try {
+        // Stop MediaPipe Camera Utils
+        if (camera) {
+            // camera.stop(); // Sometimes buggy in library
+            camera = null;
+        }
+        // Force stop video tracks
+        const videoElement = document.getElementById('input_video');
+        if (videoElement && videoElement.srcObject) {
+            videoElement.srcObject.getTracks().forEach(track => track.stop());
+            videoElement.srcObject = null;
+        }
+    } catch(e) {
+        console.log('Stop camera error:', e);
+    }
 }
 
 function onGestureResults(results) {
@@ -147,11 +185,7 @@ function triggerSuccess() {
 
     // Stop Camera
     setTimeout(() => {
-        if (camera) {
-            // camera.stop(); // Often causes errors if stopped too abruptly, let it be
-            const stream = document.getElementById('input_video').srcObject;
-            if (stream) stream.getTracks().forEach(track => track.stop());
-        }
+        stopCamera();
         launchSystem();
     }, 1000);
 }
