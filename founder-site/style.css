@@ -434,14 +434,11 @@ main {
   letter-spacing: 1px;
 }
 
-/* Tasks Module */
-.task-list { list-style: none; }
-.task-item {
+/* Mindmap Layout (Desktop Default) */
+.mindmap-layout {
   display: flex;
-  align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
-  cursor: pointer;
+  gap: 15px;
+  height: 500px; /* Default desktop height */
   transition: all 0.2s;
 }
 .task-check {
