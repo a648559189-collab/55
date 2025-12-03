@@ -11,6 +11,24 @@ const USER_PROFILE = {
 
 const LOG_DATA = [
     {
+        id: 4,
+        date: "2025-12-03",
+        weekday: "周三",
+        title: "二剪进阶 & 养号策略",
+        type: "study",
+        tags: ["二剪", "SOP", "会议记录"],
+        tasks: [
+            { text: "完善个人网站移动端，更新页面样式", done: true },
+            { text: "学习剧情/口播二剪技巧 (SOP梳理)", done: true },
+            { text: "参观学习拍摄技巧", done: true }
+        ],
+        results: "1. 掌握了剧情二剪核心：拉比例、调色、蒙版、特效、镜像去重。\n2. 掌握了口播二剪核心：4:3/3:4比例、抠图换背景。\n3. 输出了《二剪进阶技巧 SOP》脑图。",
+        reflection: "1. 完善个人网站移动端，更新页面样式。\n2. 学习了二剪技巧，重点在于差异化和高效去重。\n3. 参观学习了拍摄技巧，为后续实拍积累经验。",
+        meetingMinutes: "1. 态度：带着相信自己能做好的态度去做。\n2. 养号：五组号养三天，约15条视频。没破千/万流量的号果断废弃，筛选2-3个最好的。\n3. 对标：养号阶段多刷对标账号。\n4. 违规：有违规或破万视频截图发给丹姐。\n5. 分工：燕姐剪辑发布以快手视频号为主。",
+        mindmapUrl: "video_sop_editing_v2.html",
+        mindmapImg: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+    },
+    {
         id: 3,
         date: "2025-11-30",
         weekday: "周日",

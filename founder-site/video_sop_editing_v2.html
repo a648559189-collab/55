@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>二剪进阶技巧 SOP (剧情/口播)</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        
+        const getRawGraph = () => {
+            return `
+%% 根节点
+Root[二剪进阶技巧 SOP]:::root
+
+%% 1. 剧情二剪
+Root --> G1(1. 剧情二剪 - 高效去重):::group1
+G1 --> G1_1(画面处理):::sub1
+G1_1 --> G1_1_A["拉比例大小: 调整画面构图"]:::leaf1
+G1_1 --> G1_1_B["字体颜色: 修改原有字幕样式"]:::leaf1
+G1_1 --> G1_1_C["滤镜调色: 改变整体色调"]:::leaf1
+G1_1 --> G1_1_D["新增蒙版: 下黑上白 (白可加透明)"]:::leaf1
+G1_1 --> G1_1_E["画面特效: 增加烟雾/光效等氛围感"]:::leaf1
+
+G1 --> G1_2(防搬运/去重):::sub1
+G1_2 --> G1_2_A["镜像翻转: 每30秒一次"]:::leaf1
+G1_2 --> G1_2_B["角度偏移: 偶尔微调画面角度"]:::leaf1
+G1_2 --> G1_2_C["颜色渐变: 分区域调整颜色"]:::leaf1
+G1_2 --> G1_2_D["抠图换背景: 草坪/树/地板等环境替换"]:::leaf1
+
+G1 --> G1_3(音频与思路):::sub1
+G1_3 --> G1_3_A["BGM更换: 必须换背景音乐"]:::leaf1
+G1_3 --> G1_3_B["整理思路: 剪辑前先梳理步骤"]:::leaf1
+G1_3 --> G1_3_C["拒绝同质化: 做出差异感"]:::leaf1
+
+%% 2. 口播二剪
+Root --> G2(2. 口播二剪 - 快速产出):::group2
+G2 --> G2_1(基础设置):::sub2
+G2_1 --> G2_1_A["比例设置: 4:3 或 3:4"]:::leaf2
+G2_1 --> G2_1_B["快捷操作: 熟练使用热键"]:::leaf2
+
+G2 --> G2_2(核心技巧):::sub2
+G2_2 --> G2_2_A["抠图: 人物主体抠出"]:::leaf2
+G2_2 --> G2_2_B["换背景: 替换为不相关的动态/静态背景"]:::leaf2
+G2_2 --> G2_2_C["镜像: 人物/画面镜像处理"]:::leaf2
+
+%% 样式定义
+classDef root fill:#333,stroke:#000,color:#fff,font-size:20px;
+
+%% Group 1 Blue (剧情)
+classDef group1 fill:#e3f2fd,stroke:#2196f3,stroke-width:2px;
+classDef sub1 fill:#bbdefb,stroke:none,color:#000,font-weight:bold;
+classDef leaf1 fill:#fff,stroke:#2196f3,color:#333;
+
+%% Group 2 Purple (口播)
+classDef group2 fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px;
+classDef sub2 fill:#e1bee7,stroke:none,color:#000,font-weight:bold;
+classDef leaf2 fill:#fff,stroke:#9c27b0,color:#333;
+`;
+        };
+
+        mermaid.initialize({ 
+            startOnLoad: false,
+            securityLevel: 'loose',
+            theme: 'base',
+            flowchart: {
+                curve: 'basis',
+                padding: 10,
+                nodeSpacing: 30,
+                rankSpacing: 40,
+                htmlLabels: true
+            },
+            themeVariables: {
+                fontSize: '16px',
+                fontFamily: 'Segoe UI, sans-serif'
+            }
+        });
+
+        // 状态
+        let currentDirection = 'LR';
+        let isWrapped = false;
+
+        // 渲染函数
+        async function renderGraph() {
+            const container = document.getElementById('mermaid-view');
+            container.innerHTML = '<div style="text-align:center; padding: 20px; color: #999;">正在渲染...</div>';
+
+            let graphDef = `flowchart ${currentDirection}\n` + getRawGraph();
+
+            if (isWrapped) {
+                try {
+                    graphDef = graphDef.replace(/\["([^"]+)"\]/g, (match, content) => {
+                        if (content.length > 15 && !content.includes('<br')) {
+                            let wrapped = '';
+                            let count = 0;
+                            for(let char of content) {
+                                wrapped += char;
+                                count++;
+                                if(count >= 12 && char !== ' ') {
+                                    wrapped += '<br>';
+                                    count = 0;
+                                }
+                            }
+                            return `["${wrapped}"]`;
+                        }
+                        return match;
+                    });
+                } catch (err) { console.error("Auto-wrap error:", err); }
+            }
+            
+            try {
+                const { svg } = await mermaid.render('mermaid-svg-' + Date.now(), graphDef);
+                container.innerHTML = svg;
+            } catch (e) {
+                console.error("Mermaid Render Error:", e);
+                container.innerHTML = `<div style="color:red;">渲染错误: ${e.message}</div>`;
+            }
+        }
+
+        window.toggleDirection = () => {
+            currentDirection = currentDirection === 'LR' ? 'TD' : 'LR';
+            updateStatus();
+            renderGraph();
+        };
+
+        window.toggleWrap = () => {
+            isWrapped = !isWrapped;
+            updateStatus();
+            renderGraph();
+        };
+
+        function updateStatus() {
+            document.getElementById('btn-dir').innerText = `切换布局: ${currentDirection === 'LR' ? '左右 (LR)' : '上下 (TD)'}`;
+            document.getElementById('btn-wrap').innerText = `文字换行: ${isWrapped ? '开' : '关'}`;
+        }
+
+        if (window.innerWidth < 768) {
+            currentDirection = 'TD'; 
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            updateStatus();
+            renderGraph();
+        });
+    </script>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #f8f9fa; 
+            margin: 0; 
+            padding: 10px;
+            padding-bottom: 50px; 
+            -webkit-tap-highlight-color: transparent;
+        }
+        .container { 
+            background: white; 
+            padding: 15px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+            width: 100%;
+            box-sizing: border-box;
+            overflow-x: hidden; 
+        }
+        h1 { 
+            text-align: center; 
+            color: #333; 
+            margin: 10px 0; 
+            font-size: 1.2rem;
+            line-height: 1.4;
+        }
+        p { 
+            text-align: center; 
+            color: #666; 
+            margin-bottom: 20px; 
+            font-size: 0.9rem; 
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            box-shadow: 0 2px 4px rgba(0,123,255,0.2);
+        }
+        .btn:hover { background: #0056b3; }
+        .btn:active { transform: scale(0.98); }
+        .mermaid-wrapper {
+            width: 100%;
+            overflow: auto; 
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            min-height: 300px;
+            -webkit-overflow-scrolling: touch; 
+        }
+        svg { max-width: none !important; }
+        @media (max-width: 768px) {
+            body { padding: 5px; }
+            .container { padding: 10px; }
+            h1 { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>二剪进阶技巧 SOP</h1>
+        <p>剧情类与口播类的高效去重与差异化剪辑策略</p>
+        
+        <div class="controls">
+            <button id="btn-dir" class="btn" onclick="window.toggleDirection()">切换布局</button>
+            <button id="btn-wrap" class="btn" onclick="window.toggleWrap()">文字换行</button>
+        </div>
+
+        <div class="mermaid-wrapper">
+            <div id="mermaid-view" class="mermaid">
+                <div style="text-align:center; padding: 20px; color: #999;">Loading visualization...</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
