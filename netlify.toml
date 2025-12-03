@@ -1,0 +1,8 @@
+[build]
+  publish = "."
+  command = "# no build command"
+
+[[redirects]]
+  from = "/"
+  to = "/video_sop_drama_version.html"
+  status = 200
