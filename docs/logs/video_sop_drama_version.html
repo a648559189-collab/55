@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>剧情类短视频剪辑 SOP</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        
+        // 使用函数返回图表定义，避免模板字符串中的额外缩进问题
+        const getRawGraph = () => {
+            return `
+%% Version: Fixed-Parentheses-Bug
+%% 根节点
+Root[剧情类短视频 SOP]:::root
+
+%% 1. 剪辑流程与钩子
+Root --> G1(1. 剪辑流程 & 钩子设计):::group1
+G1 --> G1_1(前期分析):::sub1
+G1_1 --> G1_1_A["分阶段分析: 什么场景配什么音乐"]:::leaf1
+G1_1 --> G1_1_B["钩子设计: 开场必须紧张/吸引人"]:::leaf1
+
+G1 --> G1_2(画面与字幕):::sub1
+G1_2 --> G1_2_A["美颜: 全局运用 (帧率拉满)"]:::leaf1
+G1_2 --> G1_2_B["字幕: 必须逐帧对齐"]:::leaf1
+G1_2 --> G1_2_C["封面: 人物居中 + 有争议/吸睛 + 提示语(剧情演绎)"]:::leaf1
+
+G1 --> G1_3(音频细节):::sub1
+G1_3 --> G1_3_A["音量: 音乐声小于人声 (33-60)"]:::leaf1
+G1_3 --> G1_3_B["切换: 跟着剧情淡入淡出"]:::leaf1
+G1_3 --> G1_3_C["来源: 平台找对标 -> 链接提取识别"]:::leaf1
+
+%% 2. 分阶段配乐库
+Root --> G2(2. 剧情专用配乐库):::group2
+G2 --> G2_1(第1阶段: 爆款前置/紧张):::sub2
+G2_1 --> G2_1_A["十宗罪"]:::leaf2
+G2_1 --> G2_1_B["他的微笑"]:::leaf2
+G2_1 --> G2_1_C["紧急 / 紧急事态"]:::leaf2
+G2_1 --> G2_1_D["等待DJ (酷狗搜)"]:::leaf2
+
+G2 --> G2_2(第2阶段: 剧情内容中段):::sub2
+G2_2 --> G2_2_A["You"]:::leaf2
+G2_2 --> G2_2_B["Timeback (两个版本皆可)"]:::leaf2
+G2_2 --> G2_2_C["My Sunset"]:::leaf2
+G2_2 --> G2_2_D["Rise"]:::leaf2
+G2_2 --> G2_2_E["So Cold"]:::leaf2
+G2_2 --> G2_2_F["苏三 (很少用)"]:::leaf2
+
+G2 --> G2_3(第3阶段: 抒情/结尾):::sub2
+G2_3 --> G2_3_A["My Soul"]:::leaf2
+G2_3 --> G2_3_B["青空"]:::leaf2
+G2_3 --> G2_3_C["忧伤的密索拉"]:::leaf2
+G2_3 --> G2_3_D["萤火虫"]:::leaf2
+G2_3 --> G2_3_E["只要平凡"]:::leaf2
+
+%% 3. 删词与删减逻辑 (剧情特有)
+Root --> G3("3. 删减逻辑 (起号必看)"):::group3
+G3 --> G3_1(直接删除片段/字幕):::sub3
+G3_1 --> G3_1_A["侮辱性: 臭保安 / 看门狗 (连画面删)"]:::leaf3
+G3_1 --> G3_1_B["骂人词: 仅删字幕"]:::leaf3
+G3_1 --> G3_1_C["营销片段: 月赚七八千 (起号必删)"]:::leaf3
+G3_1 --> G3_1_D["引导片段: 屏幕前的家人们/给我点点赞 (起号必删)"]:::leaf3
+G3_1 --> G3_1_E["钩子片段: 起号阶段直接删 / 引流可不删"]:::leaf3
+
+%% 4. 违禁词替换表
+Root --> G4(4. 违禁词替换表):::group4
+G4 --> G4_1(商业/金钱):::sub4
+G4_1 --> G4_1_A["创业 : 删字幕<br>电商 : 电熵 / 电 熵<br>利润 : 删字幕<br>爆单 : 删字幕<br>赚钱 : 砖钱<br>钱 : 錢 (繁体)<br>发财 : 发才<br>副业 : 副叶"]:::leaf4
+
+G4 --> G4_2(敏感/语气):::sub4
+G4_2 --> G4_2_A["他妈 : tm<br>操 : 删字幕<br>帮助 : 删字幕<br>徒弟 : 图弟"]:::leaf4
+
+G4 --> G4_3(人物/平台):::sub4
+G4_3 --> G4_3_A["明星名字 : 删字幕<br>国家重大人物 : 删字幕<br>点头像/点客服 : 删字幕<br>抖音平台 : 违禁词不能用emoji代替"]:::leaf4
+
+%% 5. 违规界定 (红线)
+Root --> G5(5. 违规界定):::group5
+G5 --> G5_1(判定标准):::sub5
+G5_1 --> G5_1_A["带'创业/赚多少钱' = 广告 (违规)"]:::leaf5
+G5_1 --> G5_1_B["夸大宣传 = 违规"]:::leaf5
+
+%% 样式定义
+classDef root fill:#333,stroke:#000,color:#fff,font-size:20px;
+
+%% Group 1 Blue (流程)
+classDef group1 fill:#e3f2fd,stroke:#2196f3,stroke-width:2px;
+classDef sub1 fill:#bbdefb,stroke:none,color:#000,font-weight:bold;
+classDef leaf1 fill:#fff,stroke:#2196f3,color:#333;
+
+%% Group 2 Purple (音乐)
+classDef group2 fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px;
+classDef sub2 fill:#e1bee7,stroke:none,color:#000,font-weight:bold;
+classDef leaf2 fill:#fff,stroke:#9c27b0,color:#333;
+
+%% Group 3 Red (删减)
+classDef group3 fill:#ffebee,stroke:#ef5350,stroke-width:2px;
+classDef sub3 fill:#ffcdd2,stroke:none,color:#000,font-weight:bold;
+classDef leaf3 fill:#fff,stroke:#ef5350,color:#b71c1c,stroke-dasharray: 5 5;
+
+%% Group 4 Orange (替换)
+classDef group4 fill:#fff3e0,stroke:#ff9800,stroke-width:2px;
+classDef sub4 fill:#ffe0b2,stroke:none,color:#000,font-weight:bold;
+classDef leaf4 fill:#fff,stroke:#ff9800,color:#333,text-align:left;
+
+%% Group 5 Gray (界定)
+classDef group5 fill:#eceff1,stroke:#607d8b,stroke-width:2px;
+classDef sub5 fill:#cfd8dc,stroke:none,color:#000,font-weight:bold;
+classDef leaf5 fill:#fff,stroke:#607d8b,color:#333;
+`;
+        };
+
+        mermaid.initialize({ 
+            startOnLoad: false,
+            securityLevel: 'loose',
+            theme: 'base',
+            flowchart: {
+                curve: 'basis',
+                padding: 10,
+                nodeSpacing: 30,
+                rankSpacing: 40,
+                htmlLabels: true
+            },
+            themeVariables: {
+                fontSize: '16px',
+                fontFamily: 'Segoe UI, sans-serif'
+            }
+        });
+
+        // 状态
+        let currentDirection = 'LR';
+        let isWrapped = false; // 默认关闭换行优化，以排除语法错误
+
+        // 渲染函数
+        async function renderGraph() {
+            const container = document.getElementById('mermaid-view');
+            container.innerHTML = '<div style="text-align:center; padding: 20px; color: #999;">正在渲染...</div>';
+
+            // 构建图表定义
+            let graphDef = `flowchart ${currentDirection}\n` + getRawGraph();
+
+            // 如果需要换行处理
+            if (isWrapped) {
+                try {
+                    // 简单的正则替换：找到 ["..."] 内容并插入换行
+                    graphDef = graphDef.replace(/\["([^"]+)"\]/g, (match, content) => {
+                        // 只有当内容比较长且没有现有换行时才处理
+                        if (content.length > 15 && !content.includes('<br')) {
+                            // 每 12 个字换一行
+                            let wrapped = '';
+                            let count = 0;
+                            for(let char of content) {
+                                wrapped += char;
+                                count++;
+                                if(count >= 12 && char !== ' ') {
+                                    wrapped += '<br>';
+                                    count = 0;
+                                }
+                            }
+                            return `["${wrapped}"]`;
+                        }
+                        return match;
+                    });
+                } catch (err) {
+                    console.error("Auto-wrap error:", err);
+                }
+            }
+            
+            console.log("Render Graph Definition:", graphDef); // 方便调试
+
+            try {
+                const { svg } = await mermaid.render('mermaid-svg-' + Date.now(), graphDef);
+                container.innerHTML = svg;
+            } catch (e) {
+                console.error("Mermaid Render Error:", e);
+                container.innerHTML = `
+                    <div style="color:red; padding: 20px; text-align: center;">
+                        <h3>渲染错误</h3>
+                        <p>请截图此错误信息发给我:</p>
+                        <pre style="background:#eee; padding:10px; text-align:left; overflow:auto;">${e.message}</pre>
+                    </div>
+                `;
+            }
+        }
+
+        // 暴露给 window 以便按钮调用
+        window.toggleDirection = () => {
+            currentDirection = currentDirection === 'LR' ? 'TD' : 'LR';
+            updateStatus();
+            renderGraph();
+        };
+
+        window.toggleWrap = () => {
+            isWrapped = !isWrapped;
+            updateStatus();
+            renderGraph();
+        };
+
+        function updateStatus() {
+            document.getElementById('btn-dir').innerText = `切换布局: ${currentDirection === 'LR' ? '左右 (LR)' : '上下 (TD)'}`;
+            document.getElementById('btn-wrap').innerText = `文字换行: ${isWrapped ? '开' : '关'}`;
+        }
+
+        // 初始化检测
+        if (window.innerWidth < 768) {
+            currentDirection = 'TD'; 
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            updateStatus();
+            renderGraph();
+        });
+    </script>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #f8f9fa; 
+            margin: 0; 
+            padding: 10px;
+            padding-bottom: 50px; /* 底部留白 */
+            -webkit-tap-highlight-color: transparent;
+        }
+        .container { 
+            background: white; 
+            padding: 15px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+            width: 100%;
+            box-sizing: border-box;
+            overflow-x: hidden; /* 防止容器本身滚动，让 mermaid 滚动 */
+        }
+        h1 { 
+            text-align: center; 
+            color: #333; 
+            margin: 10px 0; 
+            font-size: 1.2rem;
+            line-height: 1.4;
+        }
+        p { 
+            text-align: center; 
+            color: #666; 
+            margin-bottom: 20px; 
+            font-size: 0.9rem; 
+        }
+        
+        /* 控制栏 */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            box-shadow: 0 2px 4px rgba(0,123,255,0.2);
+        }
+        .btn:hover { background: #0056b3; }
+        .btn:active { transform: scale(0.98); }
+
+        /* 图表区域 */
+        .mermaid-wrapper {
+            width: 100%;
+            overflow: auto; /* 允许内部滚动 */
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            min-height: 300px;
+            /* 移动端优化滚动体验 */
+            -webkit-overflow-scrolling: touch; 
+        }
+        
+        /* 默认 SVG 样式 */
+        svg {
+            max-width: none !important; /* 允许 SVG 超出容器宽度 */
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 5px; }
+            .container { padding: 10px; }
+            h1 { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>剧情类短视频剪辑 SOP</h1>
+        <p>融合剧情剪辑流程、分阶段配乐及最新违禁词库</p>
+        
+        <div class="controls">
+            <button id="btn-dir" class="btn" onclick="window.toggleDirection()">切换布局</button>
+            <button id="btn-wrap" class="btn" onclick="window.toggleWrap()">文字换行</button>
+        </div>
+
+        <div class="mermaid-wrapper">
+            <div id="mermaid-view" class="mermaid">
+                <!-- Graph will be rendered here -->
+                <div style="text-align:center; padding: 20px; color: #999;">Loading visualization...</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
