@@ -178,11 +178,15 @@ function stopCamera() {
     }
 }
 
+let detectionStartTime = 0;
+const REQUIRED_HOLD_DURATION = 1500; // 1.5 seconds
+
 function onGestureResults(results) {
     if (isGesturing) return; 
 
     const canvasCtx = document.getElementById('output_canvas').getContext('2d');
     const canvasElement = document.getElementById('output_canvas');
+    const statusText = document.getElementById('gesture-status');
     
     canvasCtx.save();
     canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
@@ -191,12 +195,11 @@ function onGestureResults(results) {
     canvasCtx.translate(canvasElement.width, 0);
     canvasCtx.scale(-1, 1);
 
-    // 1. Draw Video Background (Restored)
+    // 1. Draw Video Background
     canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
 
     // 2. Draw Overlay/HUD
     if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-        // logToScreen("检测到手!"); 
         const landmarks = results.multiHandLandmarks[0];
         
         // Draw Digital Skeleton
@@ -205,8 +208,45 @@ function onGestureResults(results) {
 
         // Check for Thumbs Up
         if (detectThumbsUpSimplified(landmarks)) {
-            logToScreen(">>> 识别成功: 大拇指!");
-            triggerSuccess();
+            if (detectionStartTime === 0) {
+                detectionStartTime = Date.now(); // Start timer
+            }
+            
+            const elapsed = Date.now() - detectionStartTime;
+            const progress = Math.min(elapsed / REQUIRED_HOLD_DURATION, 1);
+
+            // Visual Feedback: Draw Progress Circle around thumb tip
+            const thumbTip = landmarks[4];
+            const x = thumbTip.x * canvasElement.width;
+            const y = thumbTip.y * canvasElement.height;
+            
+            canvasCtx.beginPath();
+            canvasCtx.arc(x, y, 30, 0, 2 * Math.PI * progress);
+            canvasCtx.lineWidth = 5;
+            canvasCtx.strokeStyle = '#00C2FF'; // Cyan
+            canvasCtx.stroke();
+
+            // Status Update
+            if (statusText) {
+                statusText.innerHTML = `<span class="text-blue">身份确认中... ${Math.round(progress * 100)}%</span>`;
+            }
+
+            if (elapsed >= REQUIRED_HOLD_DURATION) {
+                logToScreen(">>> 识别确认: 蓄力完成!");
+                triggerSuccess();
+            }
+        } else {
+            // Lost gesture, reset timer
+            detectionStartTime = 0;
+            if (statusText && !isGesturing) {
+                statusText.innerHTML = '<span class="text-blue">● 视觉系统上线. 正在扫描...</span>';
+            }
+        }
+    } else {
+        // No hand, reset timer
+        detectionStartTime = 0;
+        if (statusText && !isGesturing) {
+            statusText.innerHTML = '<span class="text-blue">● 视觉系统上线. 正在扫描...</span>';
         }
     }
     canvasCtx.restore();
