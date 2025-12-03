@@ -8,6 +8,16 @@ let hands = null;
 let isGesturing = false;
 let isCameraRunning = false;
 
+// Debug Logger
+function logToScreen(msg) {
+    const el = document.getElementById('debug-log');
+    if (el) {
+        el.innerHTML += `> ${msg}<br>`;
+        el.scrollTop = el.scrollHeight;
+    }
+    console.log(msg);
+}
+
 function initApp() {
     // 1. Intro Animation (Gesture)
     setupGestureIntro();
@@ -26,6 +36,8 @@ function setupGestureIntro() {
     const statusText = document.getElementById('gesture-status');
     const manualBtn = document.getElementById('btn-manual-start');
     
+    logToScreen("正在初始化...");
+
     // 0. Cleanup first
     stopCamera();
 
@@ -35,19 +47,21 @@ function setupGestureIntro() {
             statusText.innerHTML = '<span class="text-orange">连接超时，请使用下方手动模式</span>';
             manualBtn.style.opacity = 1;
             manualBtn.classList.add('blink');
+            logToScreen("超时：相机未启动");
         }
     }, 8000);
 
     // Initialize MediaPipe Hands
     try {
+        logToScreen("加载 AI 模型...");
         hands = new Hands({locateFile: (file) => {
             return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
         }});
 
         hands.setOptions({
             maxNumHands: 1,
-            modelComplexity: 0, // Lite model for mobile
-            minDetectionConfidence: 0.5, // Lower threshold for easier mobile detection
+            modelComplexity: 0, // Lite
+            minDetectionConfidence: 0.5,
             minTrackingConfidence: 0.5
         });
 
@@ -56,11 +70,10 @@ function setupGestureIntro() {
         // Start Camera (Native getUserMedia for Mobile Front Cam)
         const videoElement = document.getElementById('input_video');
         
+        // Simplify constraints for maximum mobile compatibility
         const constraints = {
             video: {
-                facingMode: 'user', // Force Front Camera
-                width: { ideal: 640 },
-                height: { ideal: 480 }
+                facingMode: 'user'
             }
         };
 
@@ -68,26 +81,46 @@ function setupGestureIntro() {
 
         navigator.mediaDevices.getUserMedia(constraints)
             .then(stream => {
+                logToScreen("摄像头授权成功");
                 cameraStream = stream;
                 videoElement.srcObject = stream;
+                // Wait for metadata to resize canvas
                 videoElement.onloadedmetadata = () => {
+                    logToScreen(`视频尺寸: ${videoElement.videoWidth}x${videoElement.videoHeight}`);
+                    
+                    // Resize Canvas to match video
+                    const canvas = document.getElementById('output_canvas');
+                    const container = document.querySelector('.gesture-container');
+                    
+                    // Adjust canvas resolution
+                    canvas.width = videoElement.videoWidth;
+                    canvas.height = videoElement.videoHeight;
+                    
+                    // Adjust container aspect ratio if needed (optional, but good for UI)
+                    // For now let css handle visual size, but canvas internal res matches video
+
+                    
                     videoElement.play();
                     isCameraRunning = true;
                     clearTimeout(timeoutId);
                     statusText.innerHTML = '<span class="text-blue">● 视觉系统上线. 正在扫描...</span>';
+                    logToScreen("开始处理视频流...");
+                    
                     // Start Processing Loop
                     requestAnimationFrame(processVideoFrame);
                 };
             })
             .catch(err => {
                 console.error('Camera Error:', err);
+                logToScreen(`摄像头错误: ${err.name} - ${err.message}`);
                 clearTimeout(timeoutId);
-                statusText.innerHTML = '<span class="text-orange">! 无法访问前置摄像头</span>';
+                statusText.innerHTML = '<span class="text-orange">! 无法访问摄像头</span>';
                 manualBtn.style.opacity = 1;
             });
 
     } catch (e) {
         console.error('Init Failed', e);
+        logToScreen(`初始化异常: ${e.message}`);
         clearTimeout(timeoutId);
         statusText.innerText = '系统初始化失败，请使用手动模式';
         manualBtn.style.opacity = 1;
@@ -104,8 +137,12 @@ async function processVideoFrame() {
     if (!isCameraRunning) return;
     
     const videoElement = document.getElementById('input_video');
-    if (hands && videoElement && videoElement.readyState >= 2) {
-        await hands.send({image: videoElement});
+    try {
+        if (hands && videoElement && videoElement.readyState >= 2) {
+            await hands.send({image: videoElement});
+        }
+    } catch (e) {
+        // logToScreen("帧处理错误: " + e.message); // Don't spam
     }
     
     if (isCameraRunning) {
@@ -124,13 +161,14 @@ function stopCamera() {
         if (videoElement) {
             videoElement.srcObject = null;
         }
+        logToScreen("摄像头已关闭");
     } catch(e) {
         console.log('Stop camera error:', e);
     }
 }
 
 function onGestureResults(results) {
-    if (isGesturing) return; // Already triggered
+    if (isGesturing) return; 
 
     const canvasCtx = document.getElementById('output_canvas').getContext('2d');
     const canvasElement = document.getElementById('output_canvas');
@@ -138,28 +176,23 @@ function onGestureResults(results) {
     canvasCtx.save();
     canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
     
-    // 1. REMOVED: Draw video frame (User requested no real-time video)
-    // canvasCtx.translate(canvasElement.width, 0);
-    // canvasCtx.scale(-1, 1);
-    // canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
-
-    // We still need to mirror for the skeleton to match user movement naturally
+    // Mirror transform
     canvasCtx.translate(canvasElement.width, 0);
     canvasCtx.scale(-1, 1);
 
     if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+        // logToScreen("检测到手!"); // Spammy but useful for first detect
         const landmarks = results.multiHandLandmarks[0];
         
-        // 2. Draw Digital Skeleton Only (HUD Style)
+        // Draw Digital Skeleton
         drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {color: '#00C2FF', lineWidth: 2});
         drawLandmarks(canvasCtx, landmarks, {color: '#FF6C37', lineWidth: 2, radius: 4});
 
-        // Check for Thumbs Up (Simplified Logic)
+        // Check for Thumbs Up
         if (detectThumbsUpSimplified(landmarks)) {
+            logToScreen(">>> 识别成功: 大拇指!");
             triggerSuccess();
         }
-    } else {
-        // Optional: Draw a "Scanning Grid" or idle state when no hand is found
     }
     canvasCtx.restore();
 }
