@@ -22,22 +22,61 @@ function logToScreen(msg) {
 const AudioManager = {
     ctx: null,
     bgm: null,
-    isMuted: true,
+    isMuted: true, // Start assumed muted/paused until played
 
     init: function() {
+        this.bgm = document.getElementById('bg-music');
+        this.bgm.volume = 0.2; 
+        
+        // Setup Toggle Button Immediately
+        const btn = document.getElementById('audio-toggle');
+        if (btn) {
+            btn.onclick = (e) => {
+                e.stopPropagation(); // Prevent bubbling
+                this.toggleBGM();
+            };
+        }
+
+        // Try Auto-play immediately
+        this.tryAutoPlay();
+    },
+
+    tryAutoPlay: function() {
+        // Attempt to play
+        const p = this.bgm.play();
+        if (p !== undefined) {
+            p.then(() => {
+                this.onPlaySuccess();
+            }).catch(() => {
+                console.log("Auto-play blocked. Waiting for interaction.");
+                // Fallback: Play on first interaction
+                document.addEventListener('click', () => {
+                    if (this.bgm.paused) {
+                        this.bgm.play().then(() => this.onPlaySuccess());
+                    }
+                }, { once: true });
+            });
+        }
+    },
+
+    onPlaySuccess: function() {
+        this.isMuted = false;
+        const icon = document.getElementById('audio-icon');
+        const btn = document.getElementById('audio-toggle');
+        if(icon) icon.innerText = '🎵';
+        if(btn) btn.style.boxShadow = '0 0 20px var(--accent-blue)';
+        
+        // Init SFX Context lazily if needed
         if (!this.ctx) {
             this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-            this.bgm = document.getElementById('bg-music');
-            this.bgm.volume = 0.2; // Low volume
-            
-            // Setup Toggle
-            const btn = document.getElementById('audio-toggle');
-            btn.onclick = () => this.toggleBGM();
         }
     },
 
     toggleBGM: function() {
-        if (!this.ctx) this.init();
+        // Ensure SFX context is ready
+        if (!this.ctx) {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
         if (this.ctx.state === 'suspended') this.ctx.resume();
 
         const icon = document.getElementById('audio-icon');
@@ -48,8 +87,7 @@ const AudioManager = {
                 this.isMuted = false;
                 icon.innerText = '🎵';
                 btn.style.boxShadow = '0 0 20px var(--accent-blue)';
-                this.playClick(); // Feedback
-            }).catch(e => console.log("Audio blocked", e));
+            });
         } else {
             this.bgm.pause();
             this.isMuted = true;
@@ -59,8 +97,8 @@ const AudioManager = {
     },
 
     playClick: function() {
-        if (this.isMuted || !this.ctx) return;
-        // Heal Sound: Gentle Sine Wave (Water Drop style)
+        if (!this.ctx) return; // Silent if no context (user hasn't interacted)
+        // Heal Sound: Gentle Sine Wave
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         
@@ -77,10 +115,9 @@ const AudioManager = {
         osc.start();
         osc.stop(this.ctx.currentTime + 0.15);
     },
-
+    
     playUnlock: function() {
-        if (this.isMuted || !this.ctx) return;
-        // Success Sound: Sci-fi Rising Tone
+        if (!this.ctx) return;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         
@@ -112,8 +149,8 @@ function initApp() {
     // 3. Event Listeners
     setupInteractions();
     
-    // 4. Audio Init (Lazy)
-    document.body.addEventListener('click', () => AudioManager.init(), { once: true });
+    // 4. Audio Init (Immediate)
+    AudioManager.init();
 }
 
 function renderAttendanceCalendar_OLD() {
