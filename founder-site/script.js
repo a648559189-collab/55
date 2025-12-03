@@ -2,77 +2,187 @@ document.addEventListener('DOMContentLoaded', () => {
     initApp();
 });
 
+let camera = null;
+let hands = null;
+let isGesturing = false;
+
 function initApp() {
-    // 1. Intro Animation
-    setupIntro();
+    // 1. Intro Animation (Gesture)
+    setupGestureIntro();
 
     // 2. Data Rendering
     loadUserProfile();
     loadDailyLog(LOG_DATA[0]); // Load latest
-    renderGrowthChart();
     renderAttendanceCalendar();
 
     // 3. Event Listeners
     setupInteractions();
 }
 
-// --- 1. Epic Intro Sequence ---
-function setupIntro() {
-    const btnStart = document.getElementById('btn-start-dream');
-    const timeline = document.querySelector('.timeline-container');
-    const title = document.querySelector('.intro-title');
-    const points = document.querySelectorAll('.timeline-point');
+// --- 1. Epic Gesture Intro ---
+function setupGestureIntro() {
+    const statusText = document.getElementById('gesture-status');
+    const introLayer = document.getElementById('intro-layer');
+    const manualBtn = document.getElementById('btn-manual-start');
+
+    // Initialize MediaPipe Hands
+    try {
+        hands = new Hands({locateFile: (file) => {
+            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+        }});
+
+        hands.setOptions({
+            maxNumHands: 1,
+            modelComplexity: 1,
+            minDetectionConfidence: 0.7,
+            minTrackingConfidence: 0.5
+        });
+
+        hands.onResults(onGestureResults);
+
+        // Start Camera
+        const videoElement = document.getElementById('input_video');
+        camera = new Camera(videoElement, {
+            onFrame: async () => {
+                await hands.send({image: videoElement});
+            },
+            width: 320,
+            height: 240
+        });
+
+        camera.start()
+            .then(() => {
+                statusText.innerHTML = '<span class="text-blue">● 视觉系统上线. 正在扫描...</span>';
+            })
+            .catch(err => {
+                console.error(err);
+                statusText.innerHTML = '<span class="text-orange">! 摄像头访问失败</span>';
+                manualBtn.style.opacity = 1;
+            });
+
+    } catch (e) {
+        console.error('MediaPipe Init Failed', e);
+        statusText.innerText = '系统初始化失败，请使用手动模式';
+        manualBtn.style.opacity = 1;
+    }
+
+    // Manual Fallback
+    manualBtn.onclick = () => launchSystem();
+}
+
+function onGestureResults(results) {
+    if (isGesturing) return; // Already triggered
+
+    const canvasCtx = document.getElementById('output_canvas').getContext('2d');
+    const canvasElement = document.getElementById('output_canvas');
     
-    // Stage 1: Timeline expands
+    canvasCtx.save();
+    canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+    
+    // Draw video frame? No, let's keep it transparent "HUD" style or draw simplified
+    // Actually, drawing the image helps user position hand.
+    // We mirror it:
+    canvasCtx.translate(canvasElement.width, 0);
+    canvasCtx.scale(-1, 1);
+    canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+
+    if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+        const landmarks = results.multiHandLandmarks[0];
+        
+        // Draw skeleton
+        drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {color: '#00C2FF', lineWidth: 2});
+        drawLandmarks(canvasCtx, landmarks, {color: '#FF6C37', lineWidth: 1, radius: 3});
+
+        // Check for Thumbs Up
+        if (detectThumbsUp(landmarks)) {
+            triggerSuccess();
+        }
+    }
+    canvasCtx.restore();
+}
+
+function detectThumbsUp(landmarks) {
+    // Points: 
+    // Thumb: 1, 2, 3, 4 (Tip)
+    // Index: 5, 6, 7, 8 (Tip)
+    // Middle: 9, 10, 11, 12 (Tip)
+    // Ring: 13, 14, 15, 16 (Tip)
+    // Pinky: 17, 18, 19, 20 (Tip)
+
+    const thumbTip = landmarks[4];
+    const thumbIP = landmarks[3];
+    const indexTip = landmarks[8];
+    const indexPIP = landmarks[6];
+    const middleTip = landmarks[12];
+    const middlePIP = landmarks[10];
+    const ringTip = landmarks[16];
+    const ringPIP = landmarks[14];
+    const pinkyTip = landmarks[20];
+    const pinkyPIP = landmarks[18];
+
+    // 1. Thumb is extended (Tip is significantly higher/lower than IP depending on orientation?)
+    // Let's assume "Upright" Thumbs Up. Thumb Tip Y < Thumb IP Y (Y increases downwards)
+    const isThumbUp = thumbTip.y < thumbIP.y;
+
+    // 2. Other fingers are curled (Tip Y > PIP Y)
+    const isIndexCurled = indexTip.y > indexPIP.y;
+    const isMiddleCurled = middleTip.y > middlePIP.y;
+    const isRingCurled = ringTip.y > ringPIP.y;
+    const isPinkyCurled = pinkyTip.y > pinkyPIP.y;
+
+    // Simple check
+    return isThumbUp && isIndexCurled && isMiddleCurled && isRingCurled && isPinkyCurled;
+}
+
+function triggerSuccess() {
+    if (isGesturing) return;
+    isGesturing = true;
+
+    // Visual Feedback
+    const container = document.querySelector('.gesture-container');
+    const status = document.getElementById('gesture-status');
+    
+    container.classList.add('success');
+    status.innerHTML = '<span class="text-orange" style="font-size:1.2rem; font-weight:bold;">Access Granted</span>';
+
+    // Stop Camera
     setTimeout(() => {
-        timeline.style.width = '100%';
+        if (camera) {
+            // camera.stop(); // Often causes errors if stopped too abruptly, let it be
+            const stream = document.getElementById('input_video').srcObject;
+            if (stream) stream.getTracks().forEach(track => track.stop());
+        }
+        launchSystem();
+    }, 1000);
+}
+
+function launchSystem() {
+    const intro = document.getElementById('intro-layer');
+    const app = document.getElementById('app-container');
+    const sidebar = document.querySelector('aside');
+    const main = document.querySelector('main');
+
+    // Fade out intro
+    intro.style.transition = 'all 0.8s ease';
+    intro.style.opacity = '0';
+    intro.style.transform = 'scale(1.1)';
+
+    // Reveal App
+    app.style.opacity = '1';
+    app.style.pointerEvents = 'auto'; 
+    
+    setTimeout(() => {
+        intro.style.display = 'none';
+        // Slide in elements
+        sidebar.style.transform = 'translateX(0)';
+        main.style.transform = 'translateX(0)';
+        
+        // CLEANUP
         setTimeout(() => {
-            points.forEach(p => p.style.opacity = '1');
+            sidebar.style.transform = '';
+            main.style.transform = '';
         }, 1000);
-    }, 500);
-
-    // Stage 2: Title & Button
-    setTimeout(() => {
-        title.style.opacity = '1';
-        title.style.transform = 'translateY(0)';
-        
-        setTimeout(() => {
-            btnStart.style.opacity = '1';
-            btnStart.style.transform = 'scale(1)';
-        }, 800);
-    }, 2000);
-
-    // Stage 3: Launch
-    btnStart.addEventListener('click', () => {
-        // Particle explosion effect could go here
-        
-        const intro = document.getElementById('intro-layer');
-        const app = document.getElementById('app-container');
-        const sidebar = document.querySelector('aside');
-        const main = document.querySelector('main');
-
-        // Fade out intro
-        intro.style.transition = 'all 0.8s ease';
-        intro.style.opacity = '0';
-        intro.style.transform = 'scale(1.1)';
-
-        // Reveal App
-        app.style.opacity = '1';
-        app.style.pointerEvents = 'auto'; 
-        
-        setTimeout(() => {
-            intro.style.display = 'none';
-            // Slide in elements
-            sidebar.style.transform = 'translateX(0)';
-            main.style.transform = 'translateX(0)';
-            
-            // CLEANUP: Allow CSS classes to control transform after animation
-            setTimeout(() => {
-                sidebar.style.transform = '';
-                main.style.transform = '';
-            }, 1000);
-        }, 600);
-    });
+    }, 600);
 }
 
 // --- 2. Data Rendering ---

@@ -8,23 +8,50 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- MediaPipe for Gesture Recognition -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
 </head>
 <body>
 
-    <!-- 1. Narrative Intro Layer -->
+    <!-- 1. Narrative Intro Layer (Gesture Edition) -->
     <div id="intro-layer">
-        <div class="intro-title">何铖博・筑梦上岸之路</div>
-        
-        <div style="width: 60%; margin-top: 30px;">
-            <div class="timeline-container">
-                <div class="timeline-point tp-start"></div>
-                <div class="timeline-point tp-end"></div>
+        <div class="intro-content">
+            <div class="intro-title">筑梦OS · 身份识别</div>
+            
+            <!-- Camera/Gesture Area -->
+            <div class="gesture-container neon-border-flow">
+                <video id="input_video" style="display:none;"></video>
+                <canvas id="output_canvas" width="320" height="240"></canvas>
+                
+                <!-- Scanning Overlay -->
+                <div class="scan-line"></div>
+                <div class="scan-overlay">
+                    <div class="corner c-tl"></div>
+                    <div class="corner c-tr"></div>
+                    <div class="corner c-bl"></div>
+                    <div class="corner c-br"></div>
+                </div>
+                
+                <!-- Loading/Status -->
+                <div id="gesture-status">
+                    <span class="blink">●</span> 初始化视觉核心...
+                </div>
             </div>
-        </div>
 
-        <button class="btn-launch neon-border-flow" id="btn-start-dream">
-            筑梦启动
-        </button>
+            <div class="gesture-hint">
+                <div class="hint-icon">👍</div>
+                <div class="hint-text">请对着摄像头<br><strong>竖起大拇指</strong><br>解锁系统</div>
+            </div>
+
+            <!-- Fallback Manual Button -->
+            <button id="btn-manual-start" class="btn-text-only">
+                [ 摄像头不可用？点击手动进入 ]
+            </button>
+        </div>
     </div>
 
     <!-- Mobile Menu Button -->
