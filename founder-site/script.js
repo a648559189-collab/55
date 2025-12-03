@@ -291,6 +291,37 @@ function setupInteractions() {
             document.getElementById('modal-iframe').src = '';
         }
     };
+
+    // --- Mobile Menu Logic ---
+    const menuBtn = document.getElementById('mobile-menu-btn');
+    const sidebar = document.querySelector('aside');
+    const mainContent = document.querySelector('main');
+
+    if (menuBtn) {
+        menuBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent immediate close
+            sidebar.classList.toggle('active');
+            menuBtn.innerText = sidebar.classList.contains('active') ? '✕' : '☰';
+        });
+
+        // Close sidebar when clicking main content
+        mainContent.addEventListener('click', () => {
+            if (sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+                menuBtn.innerText = '☰';
+            }
+        });
+
+        // Close sidebar when clicking a nav item
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('active');
+                    menuBtn.innerText = '☰';
+                }
+            });
+        });
+    }
 }
 
 // --- 4. History View Logic ---
