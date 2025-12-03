@@ -613,6 +613,18 @@ main {
     height: auto !important;
   }
 
+  .mindmap-main {
+    height: 450px;
+  }
+
+  .mindmap-list-container {
+    border-left: none !important;
+    border-top: 1px solid var(--border-glass);
+    padding-left: 0 !important;
+    padding-top: 15px;
+    max-height: 200px;
+  }
+
   .intro-title {
     font-size: 1.4rem;
   }

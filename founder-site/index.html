@@ -45,6 +45,9 @@
                     <div class="neon-bar"></div>
                     <span>📝 今日剪辑复盘</span>
                 </li>
+                <li class="nav-item" data-tab="meeting">
+                    <span>📋 会议记录</span>
+                </li>
                 <li class="nav-item" data-tab="skills">
                     <span>🎯 技能提升计划</span>
                 </li>
@@ -91,22 +94,10 @@
 
             <!-- Dynamic Dashboard Grid -->
             <div id="dashboard-content" class="dashboard-grid">
-                <!-- Left Col: Daily Log -->
+                <!-- Left Col: SOP & Reflection -->
                 <div class="section-col">
                     
-                    <!-- 1. Tasks -->
-                    <div class="tech-card neon-border-flow">
-                        <div class="card-title">
-                            <span>📌 今日筑梦目标</span>
-                            <span class="card-tag">Target Locked</span>
-                        </div>
-                        <ul class="task-list" id="daily-tasks">
-                            <!-- JS Injected -->
-                        </ul>
-                        <button class="task-lock-btn" onclick="lockTasks()">🔒 锁定今日目标</button>
-                    </div>
-
-                    <!-- 2. Results & Mindmap -->
+                    <!-- 1. Results & Mindmap (SOP Board) -->
                     <div class="tech-card" style="z-index: 6;">
                         <div class="card-title">
                             <span>🧠 核心SOP战术板</span>
@@ -114,7 +105,7 @@
                         </div>
                         
                         <!-- Split Layout for Mindmap -->
-                        <div class="mindmap-layout" style="display: flex; gap: 15px; height: 350px;"> <!-- Increased height for iframe -->
+                        <div class="mindmap-layout" style="display: flex; gap: 15px; height: 500px;"> <!-- Increased height -->
                             <!-- Left: Active Preview -->
                             <div class="mindmap-main" style="flex: 2; display: flex; flex-direction: column;">
                                 <div id="mindmap-preview" style="flex: 1; border: 1px solid var(--border-glass); border-radius: 4px; overflow: hidden; position: relative;">
@@ -134,12 +125,13 @@
                         </div>
                     </div>
 
+                    <!-- 2. Daily Reflection -->
                     <div class="tech-card">
                         <div class="card-title">
                             <span>💡 每日总结</span>
                             <span class="card-tag">Reflect v1.2</span>
                         </div>
-                        <div class="result-text" id="daily-reflection" contenteditable="true">
+                        <div class="result-text" id="daily-reflection" contenteditable="true" style="white-space: pre-line;">
                             <!-- JS Injected -->
                         </div>
                         <input type="text" placeholder="输入明日优化方向..." style="width:100%; background:transparent; border:none; border-bottom:1px solid #333; color:#fff; padding:5px;">
@@ -147,30 +139,32 @@
 
                 </div>
 
-                <!-- Right Col: Stats & Results -->
+                <!-- Right Col: Results, Meeting, Calendar -->
                 <div class="section-col">
                     
-                    <!-- Results -->
+                    <!-- 1. Results -->
                     <div class="tech-card" style="border-top: 2px solid var(--accent-orange);">
                         <div class="card-title">
                             <span class="text-orange">🚀 今日实干成果</span>
                         </div>
-                        <div class="result-text" id="daily-results">
+                        <div class="result-text" id="daily-results" style="white-space: pre-line;">
                             <!-- JS Injected -->
                         </div>
                     </div>
 
-                    <!-- Growth Chart -->
+                    <!-- 2. Meeting Minutes (New) -->
                     <div class="tech-card">
                         <div class="card-title">
-                            <span>📊 每周产出趋势</span>
+                            <span>📋 会议记录</span>
+                            <span class="card-tag">Sync</span>
                         </div>
-                        <div class="chart-placeholder" id="growth-chart">
-                            <!-- JS Injected Bars -->
+                        <div class="result-text" id="meeting-minutes" style="white-space: pre-line; min-height: 100px;">
+                            <!-- JS Injected -->
+                            暂无记录
                         </div>
                     </div>
 
-                    <!-- Attendance Calendar -->
+                    <!-- 3. Attendance Calendar -->
                     <div class="tech-card">
                         <div class="card-title">
                             <span>📅 筑梦出勤表</span>

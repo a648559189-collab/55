@@ -58,13 +58,19 @@ function setupIntro() {
 
         // Reveal App
         app.style.opacity = '1';
-        app.style.pointerEvents = 'auto'; // <--- 修复核心：恢复鼠标交互
+        app.style.pointerEvents = 'auto'; 
         
         setTimeout(() => {
             intro.style.display = 'none';
             // Slide in elements
             sidebar.style.transform = 'translateX(0)';
             main.style.transform = 'translateX(0)';
+            
+            // CLEANUP: Allow CSS classes to control transform after animation
+            setTimeout(() => {
+                sidebar.style.transform = '';
+                main.style.transform = '';
+            }, 1000);
         }, 600);
     });
 }
@@ -82,36 +88,61 @@ function loadUserProfile() {
     document.getElementById('bar-total-progress').style.width = USER_PROFILE.totalProgress + '%';
 }
 
+function switchDateView(dateStr) {
+    // Find log for this date
+    const log = LOG_DATA.find(l => l.date === dateStr);
+    
+    if (log) {
+        loadDailyLog(log);
+    } else {
+        // Mock empty log
+        const emptyLog = {
+            id: -1,
+            date: dateStr,
+            weekday: getWeekday(dateStr),
+            tasks: [],
+            results: "暂无记录",
+            reflection: "暂无记录",
+            meetingMinutes: "暂无记录",
+            mindmapUrl: "", // Hide or empty
+            title: "无 SOP 数据"
+        };
+        loadDailyLog(emptyLog);
+    }
+}
+
+function getWeekday(dateStr) {
+    const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    return days[new Date(dateStr).getDay()];
+}
+
 function loadDailyLog(log) {
     // Date
-    document.getElementById('current-date-display').innerText = log.date + ' · ' + log.weekday;
+    document.getElementById('current-date-display').innerText = log.date + ' · ' + (log.weekday || '');
 
-    // Tasks
-    const taskList = document.getElementById('daily-tasks');
-    taskList.innerHTML = '';
-    log.tasks.forEach(task => {
-        const li = document.createElement('li');
-        li.className = `task-item ${task.done ? 'done' : ''}`;
-        li.innerHTML = `
-            <div class="task-check"></div>
-            <span>${task.text}</span>
-        `;
-        li.onclick = () => toggleTask(li);
-        taskList.appendChild(li);
-    });
+    // Results & Reflection & Meeting
+    document.getElementById('daily-results').innerText = log.results || '';
+    document.getElementById('daily-reflection').innerText = log.reflection || '';
+    
+    const meetingDiv = document.getElementById('meeting-minutes');
+    if (meetingDiv) meetingDiv.innerText = log.meetingMinutes || '暂无记录';
 
-    // Results & Reflection
-    document.getElementById('daily-results').innerText = log.results;
-    document.getElementById('daily-reflection').innerText = log.reflection;
-
-    // Initialize Mindmap Section (Render List & Select Current)
-    renderMindmapList(log.id);
+    // Initialize Mindmap Section
+    // If valid ID, render list. If empty log, maybe clear list or show all but inactive.
+    if (log.id !== -1) {
+        renderMindmapList(log.id);
+    } else {
+        // Clear preview or show default
+        document.getElementById('mindmap-preview').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#666;">本日无 SOP 数据</div>';
+        document.getElementById('mindmap-info').innerText = '';
+    }
 }
 
 function renderMindmapList(activeId) {
     const listContainer = document.getElementById('mindmap-list');
     listContainer.innerHTML = '';
 
+    // Always show full list of available SOPs so user can browse even if looking at a past date
     LOG_DATA.forEach(log => {
         if (!log.mindmapUrl) return;
 
@@ -147,7 +178,7 @@ function switchMindmap(log) {
     // Update Preview Area (Now using Iframe)
     const preview = document.getElementById('mindmap-preview');
     // Clear old content but save button ref
-    const btn = preview.querySelector('.btn-expand-map');
+    // const btn = preview.querySelector('.btn-expand-map'); // Don't save, recreate
     preview.innerHTML = ''; 
     
     const iframe = document.createElement('iframe');
@@ -156,6 +187,16 @@ function switchMindmap(log) {
     iframe.style.height = '100%';
     iframe.style.border = 'none';
     iframe.style.background = '#fff'; // Ensure visibility if transparent
+    
+    const btn = document.createElement('button');
+    btn.className = 'btn-expand-map';
+    btn.innerText = '🔍 全息展开';
+    btn.style.position = 'absolute';
+    btn.style.bottom = '10px';
+    btn.style.right = '10px';
+    btn.style.top = 'auto';
+    btn.style.left = 'auto';
+    btn.style.transform = 'none';
     
     preview.appendChild(iframe);
     preview.appendChild(btn); // Re-append button (now overlaying iframe)
@@ -176,14 +217,7 @@ function switchMindmap(log) {
 }
 
 function renderGrowthChart() {
-    const container = document.getElementById('growth-chart');
-    GROWTH_STATS.forEach(stat => {
-        const bar = document.createElement('div');
-        bar.className = 'chart-bar';
-        bar.style.height = stat.height + '%';
-        bar.innerHTML = `<div class="bar-tooltip">${stat.tip}: ${stat.count}条</div>`;
-        container.appendChild(bar);
-    });
+    // Removed
 }
 
 function renderAttendanceCalendar() {
@@ -191,28 +225,48 @@ function renderAttendanceCalendar() {
     container.innerHTML = '';
     
     // Config: Current Month (Demo: Dec 2025)
+    // Use Nov/Dec mix for demo since data is Nov 30
     const currentYear = 2025;
-    const currentMonth = 12; // Dec
-    const daysInMonth = 31; 
+    const currentMonth = 11; // Showing Nov data primarily or Dec?
+    // Let's stick to Dec view but maybe include prev days? 
+    // Actually, user mentioned 11.30. Let's show Nov/Dec transition or just Nov?
+    // The code had Dec (12). 11.30 is not in Dec.
+    // Let's change to Nov for better demo alignment.
+    const displayMonth = 11; 
+    const displayYear = 2025;
+    const daysInMonth = 30; 
     const restDays = [1, 2, 17, 18]; // Fixed rest days
 
-    document.getElementById('cal-month-label').innerText = `${currentMonth}月`;
+    document.getElementById('cal-month-label').innerText = `${displayMonth}月`;
 
     for (let i = 1; i <= daysInMonth; i++) {
         const dayDiv = document.createElement('div');
         const isRest = restDays.includes(i);
         
         // Format Date String for check: YYYY-MM-DD
-        const dateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+        const dateStr = `${displayYear}-${String(displayMonth).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+        // Check if we have a log for this date
+        const hasLog = LOG_DATA.some(l => l.date === dateStr);
+        
+        // Visual checkmark for "attendance"
         const isChecked = USER_PROFILE.attendanceLog && USER_PROFILE.attendanceLog.includes(dateStr);
 
         dayDiv.className = `cal-day ${isRest ? 'rest' : 'work'} ${isChecked ? 'checked' : ''}`;
         dayDiv.innerText = i;
         
+        // Add indicator dot if there is a log
+        if (hasLog) {
+            dayDiv.style.borderBottom = '2px solid var(--accent-blue)';
+        }
+        
         if (!isRest) {
             dayDiv.onclick = () => {
-                dayDiv.classList.toggle('checked');
-                // In real app: Update USER_PROFILE.attendanceLog
+                // Switch View
+                switchDateView(dateStr);
+                
+                // Highlight selection
+                document.querySelectorAll('.cal-day').forEach(d => d.style.background = '');
+                dayDiv.style.background = 'rgba(0, 194, 255, 0.2)';
             };
         }
 
