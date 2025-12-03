@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>何铖博・筑梦OS</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- 1. Narrative Intro Layer -->
+    <div id="intro-layer">
+        <div class="intro-title">何铖博・筑梦上岸之路</div>
+        
+        <div style="width: 60%; margin-top: 30px;">
+            <div class="timeline-container">
+                <div class="timeline-point tp-start"></div>
+                <div class="timeline-point tp-end"></div>
+            </div>
+        </div>
+
+        <button class="btn-launch neon-border-flow" id="btn-start-dream">
+            筑梦启动
+        </button>
+    </div>
+
+    <!-- 2. Main App Container -->
+    <div id="app-container">
+        
+        <!-- Sidebar Navigation -->
+        <aside>
+            <div class="logo-area">
+                <div class="logo-text">何铖博・筑梦</div>
+                <div class="logo-sub">Founder Growth OS v2.0</div>
+            </div>
+
+            <ul class="nav-menu">
+                <li class="nav-item active" data-tab="daily">
+                    <div class="neon-bar"></div>
+                    <span>📝 今日剪辑复盘</span>
+                </li>
+                <li class="nav-item" data-tab="skills">
+                    <span>🎯 技能提升计划</span>
+                </li>
+                <li class="nav-item" data-tab="growth">
+                    <span>📈 成长轨迹看板</span>
+                </li>
+                <li class="nav-item" data-tab="history">
+                    <span>📜 往日历程</span>
+                </li>
+                <li class="nav-item" data-tab="profile">
+                    <span>👤 个人中心</span>
+                </li>
+            </ul>
+
+            <!-- Total Progress -->
+            <div class="total-progress-container">
+                <div class="progress-label">
+                    <span>总筑梦进度</span>
+                    <span id="lbl-total-progress">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="bar-total-progress"></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main>
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <div class="profile-info">
+                    <h2 class="text-white">Hello, <span class="text-orange">何铖博</span></h2>
+                    <div class="profile-meta">
+                        <span class="font-mono text-blue">已筑梦 <span id="days-count">0</span> 天</span>
+                        <span class="contact-pill" title="工作沟通专用">📞 15992677659</span>
+                    </div>
+                </div>
+                
+                <!-- Date Selector (Mock) -->
+                <div class="tech-card" style="padding: 8px 16px; font-family: monospace; cursor: pointer;">
+                    📅 <span id="current-date-display">2025-11-30</span> ▼
+                </div>
+            </div>
+
+            <!-- Dynamic Dashboard Grid -->
+            <div id="dashboard-content" class="dashboard-grid">
+                <!-- Left Col: Daily Log -->
+                <div class="section-col">
+                    
+                    <!-- 1. Tasks -->
+                    <div class="tech-card neon-border-flow">
+                        <div class="card-title">
+                            <span>📌 今日筑梦目标</span>
+                            <span class="card-tag">Target Locked</span>
+                        </div>
+                        <ul class="task-list" id="daily-tasks">
+                            <!-- JS Injected -->
+                        </ul>
+                        <button class="task-lock-btn" onclick="lockTasks()">🔒 锁定今日目标</button>
+                    </div>
+
+                    <!-- 2. Results & Mindmap -->
+                    <div class="tech-card" style="z-index: 6;">
+                        <div class="card-title">
+                            <span>🧠 核心SOP战术板</span>
+                            <span class="card-tag">SOP Archive</span>
+                        </div>
+                        
+                        <!-- Split Layout for Mindmap -->
+                        <div class="mindmap-layout" style="display: flex; gap: 15px; height: 350px;"> <!-- Increased height for iframe -->
+                            <!-- Left: Active Preview -->
+                            <div class="mindmap-main" style="flex: 2; display: flex; flex-direction: column;">
+                                <div id="mindmap-preview" style="flex: 1; border: 1px solid var(--border-glass); border-radius: 4px; overflow: hidden; position: relative;">
+                                    <!-- JS Injected Iframe -->
+                                    <button class="btn-expand-map" style="position:absolute; bottom:10px; right:10px; top:auto; left:auto; transform:none;">🔍 全息展开</button>
+                                </div>
+                                <div id="mindmap-info" style="margin-top: 8px; font-size: 0.8rem; color: var(--accent-blue);"></div>
+                            </div>
+
+                            <!-- Right: Playlist --> 
+                            <div class="mindmap-list-container" style="flex: 1; border-left: 1px solid var(--border-glass); padding-left: 15px; overflow-y: auto;">
+                                <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;">SOP 档案库</div>
+                                <ul class="mindmap-list" id="mindmap-list">
+                                    <!-- JS Injected items -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tech-card">
+                        <div class="card-title">
+                            <span>💡 每日总结</span>
+                            <span class="card-tag">Reflect v1.2</span>
+                        </div>
+                        <div class="result-text" id="daily-reflection" contenteditable="true">
+                            <!-- JS Injected -->
+                        </div>
+                        <input type="text" placeholder="输入明日优化方向..." style="width:100%; background:transparent; border:none; border-bottom:1px solid #333; color:#fff; padding:5px;">
+                    </div>
+
+                </div>
+
+                <!-- Right Col: Stats & Results -->
+                <div class="section-col">
+                    
+                    <!-- Results -->
+                    <div class="tech-card" style="border-top: 2px solid var(--accent-orange);">
+                        <div class="card-title">
+                            <span class="text-orange">🚀 今日实干成果</span>
+                        </div>
+                        <div class="result-text" id="daily-results">
+                            <!-- JS Injected -->
+                        </div>
+                    </div>
+
+                    <!-- Growth Chart -->
+                    <div class="tech-card">
+                        <div class="card-title">
+                            <span>📊 每周产出趋势</span>
+                        </div>
+                        <div class="chart-placeholder" id="growth-chart">
+                            <!-- JS Injected Bars -->
+                        </div>
+                    </div>
+
+                    <!-- Attendance Calendar -->
+                    <div class="tech-card">
+                        <div class="card-title">
+                            <span>📅 筑梦出勤表</span>
+                            <span class="card-tag" id="cal-month-label">11月</span>
+                        </div>
+                        <div class="calendar-grid" id="attendance-calendar">
+                            <!-- JS Injected Days -->
+                        </div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 10px; text-align: center;">
+                            *每月 1, 2, 17, 18 号休息充电
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- History View (Hidden by default) -->
+            <div id="history-view" class="dashboard-grid" style="display: none;">
+                <!-- Left: Timeline List -->
+                <div class="section-col">
+                    <h3 class="text-white" style="margin-bottom: 10px;">⏳ 筑梦时间轴</h3>
+                    <div id="history-timeline" style="display: flex; flex-direction: column; gap: 15px;">
+                        <!-- JS Injected -->
+                    </div>
+                </div>
+
+                <!-- Right: Detail Preview -->
+                <div class="section-col">
+                    <div class="tech-card" style="position: sticky; top: 20px; height: fit-content;">
+                        <div class="card-title">
+                            <span class="text-orange">🎞️ 历史回溯</span>
+                            <span class="card-tag" id="hist-date-tag">Select a log</span>
+                        </div>
+                        
+                        <!-- Preview Content -->
+                        <div id="hist-preview-content" style="opacity: 0.5; text-align: center; padding: 20px;">
+                            请在左侧选择一天查看详情
+                        </div>
+                        
+                        <!-- Dynamic Content Container (Hidden initially) -->
+                        <div id="hist-detail-box" style="display: none;">
+                            <div class="mindmap-thumb" id="hist-mindmap-thumb" style="height: 200px; margin-bottom: 15px;">
+                                <!-- Img here -->
+                                <button class="btn-expand-map" id="hist-btn-expand">🔍 查看脑图</button>
+                            </div>
+                            <div class="result-text" id="hist-summary"></div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border-glass); padding-top: 10px; margin-top: 10px;">
+                                💡 当日反思：<span id="hist-reflection"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Fullscreen Modal -->
+    <div id="mindmap-modal">
+        <div class="modal-content">
+            <div class="modal-close">&times;</div>
+            <iframe id="modal-iframe" src="" style="width:100%; height:100%; border:none;"></iframe>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
