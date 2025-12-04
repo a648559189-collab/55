@@ -841,12 +841,17 @@ function renderHistoryTimeline() {
             <div>${tags}</div>
         `;
 
-        card.onclick = () => showHistoryDetail(log);
+        card.onclick = () => {
+            // Switch to Daily Tab and load this log
+            document.querySelector('[data-tab="daily"]').click();
+            loadDailyLog(log);
+        };
         container.appendChild(card);
     });
 }
 
 function showHistoryDetail(log) {
+    // Deprecated in favor of jumping to Daily Tab, but kept for safety
     // UI State
     document.getElementById('hist-preview-content').style.display = 'none';
     document.getElementById('hist-detail-box').style.display = 'block';
@@ -873,4 +878,69 @@ function showHistoryDetail(log) {
 
     // Button Action
     document.getElementById('hist-btn-expand').onclick = () => openMindmap(log.mindmapUrl);
+}
+
+// --- Helper: Load Log ---
+function loadDailyLog(log, skipListRender = false) {
+    // Date
+    document.getElementById('current-date-display').innerText = log.date + ' · ' + (log.weekday || '');
+
+    // Results & Reflection & Meeting
+    document.getElementById('daily-results').innerText = log.results || '';
+    document.getElementById('daily-reflection').innerText = log.reflection || '';
+    
+    const meetingDiv = document.getElementById('meeting-minutes');
+    if (meetingDiv) meetingDiv.innerText = log.meetingMinutes || '暂无记录';
+
+    // Initialize Mindmap Section
+    if (log.id !== -1) {
+        if (!skipListRender) {
+            renderMindmapList(log.id);
+        } else {
+            // Just update active state in list
+            document.querySelectorAll('.mindmap-item').forEach(el => el.classList.remove('active'));
+            // Try to find the list item by some attribute if possible, or just rely on user click
+            // Since this is called from onclick, the class is likely already set or handled there
+        }
+    } else {
+        document.getElementById('mindmap-preview').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#666;">本日无 SOP 数据</div>';
+        document.getElementById('mindmap-info').innerText = '';
+        if (!skipListRender) renderMindmapList(-1);
+    }
+}
+
+function renderMindmapList(activeId) {
+    const listContainer = document.getElementById('mindmap-list');
+    listContainer.innerHTML = '';
+
+    // Always show full list of available SOPs
+    LOG_DATA.forEach(log => {
+        if (!log.mindmapUrl) return;
+
+        const li = document.createElement('li');
+        li.className = `mindmap-item ${log.id === activeId ? 'active' : ''}`;
+        
+        const title = log.title ? log.title : (log.tags ? log.tags.join(' / ') : `SOP #${log.id}`);
+        
+        li.innerHTML = `
+            <span class="mindmap-item-date">${log.date}</span>
+            <span>${title}</span>
+        `;
+        
+        li.onclick = () => {
+            // Update UI active state
+            document.querySelectorAll('.mindmap-item').forEach(el => el.classList.remove('active'));
+            li.classList.add('active');
+            // Switch Content
+            loadDailyLog(log, true); // Skip re-rendering the list we just clicked
+            switchMindmap(log);
+        };
+
+        listContainer.appendChild(li);
+        
+        // If this is the active log, trigger the switch immediately to load initial view
+        if (log.id === activeId) {
+            switchMindmap(log);
+        }
+    });
 }

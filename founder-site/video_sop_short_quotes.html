@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>短语录剪辑 SOP</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        
+        const getRawGraph = () => {
+            return `
+%% 根节点
+Root[短语录剪辑 SOP]:::root
+
+%% 1. 音频处理
+Root --> G1(1. 音频处理):::group1
+G1 --> G1_1["环境音大: 人声分离"]:::leaf1
+G1 --> G1_2["室内录制: 声音降噪"]:::leaf1
+
+%% 2. 画面与美颜
+Root --> G2(2. 画面与美颜):::group1
+G2 --> G2_1["美颜: 根据IP开磨皮即可"]:::leaf1
+G2 --> G2_2["结尾处理: 滤镜 德古拉 (70%)"]:::leaf1
+
+%% 3. 字幕规范
+Root --> G3(3. 字幕规范):::group2
+G3 --> G3_1["识别字幕"]:::leaf2
+G3 --> G3_2["参数设置"]:::sub2
+G3_2 --> G3_2_A["样式: 排列缩放 44"]:::leaf2
+G3_2 --> G3_2_B["字号: 12"]:::leaf2
+
+%% 4. 剪辑细节
+Root --> G4(4. 剪辑细节):::group1
+G4 --> G4_1["去头: 删掉前面没用的画面"]:::leaf1
+G4 --> G4_2["气口: 对齐气口"]:::leaf1
+G4 --> G4_3["敏感词: 删音频，保留画面"]:::leaf1
+G4 --> G4_4["动画: 入场闪现，出场渐隐"]:::leaf1
+
+%% 5. 音乐与节奏
+Root --> G5(5. 音乐与节奏):::group2
+G5 --> G5_1["找对标 (快手搜关键词)"]:::leaf2
+G5 --> G5_2["卡点: 慢节奏剪辑，按节拍卡点"]:::leaf2
+G5 --> G5_3["音量平衡"]:::sub2
+G5_3 --> G5_3_A["BGM: 15-20 (不压人声)"]:::leaf2
+G5_3 --> G5_3_B["结尾视频: 音量关闭"]:::leaf2
+
+%% 6. 封面设计
+Root --> G6(6. 封面设计):::group2
+G6 --> G6_1["参考对标 (字体/音乐)"]:::leaf2
+G6 --> G6_2["样式: 白字黑边 或 黄体"]:::leaf2
+
+%% 样式定义
+classDef root fill:#333,stroke:#000,color:#fff,font-size:20px;
+
+%% Group 1 Blue (技术处理)
+classDef group1 fill:#e3f2fd,stroke:#2196f3,stroke-width:2px;
+classDef sub1 fill:#bbdefb,stroke:none,color:#000,font-weight:bold;
+classDef leaf1 fill:#fff,stroke:#2196f3,color:#333;
+
+%% Group 2 Purple (艺术/规范)
+classDef group2 fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px;
+classDef sub2 fill:#e1bee7,stroke:none,color:#000,font-weight:bold;
+classDef leaf2 fill:#fff,stroke:#9c27b0,color:#333;
+`;
+        };
+
+        mermaid.initialize({ 
+            startOnLoad: false,
+            securityLevel: 'loose',
+            theme: 'base',
+            flowchart: {
+                curve: 'basis',
+                padding: 10,
+                nodeSpacing: 30,
+                rankSpacing: 40,
+                htmlLabels: true
+            },
+            themeVariables: {
+                fontSize: '16px',
+                fontFamily: 'Segoe UI, sans-serif'
+            }
+        });
+
+        // 状态
+        let currentDirection = 'LR';
+        let isWrapped = false;
+
+        // 渲染函数
+        async function renderGraph() {
+            const container = document.getElementById('mermaid-view');
+            container.innerHTML = '<div style="text-align:center; padding: 20px; color: #999;">正在渲染...</div>';
+
+            let graphDef = `flowchart ${currentDirection}\n` + getRawGraph();
+
+            if (isWrapped) {
+                try {
+                    graphDef = graphDef.replace(/\["([^"]+)"\]/g, (match, content) => {
+                        if (content.length > 15 && !content.includes('<br')) {
+                            let wrapped = '';
+                            let count = 0;
+                            for(let char of content) {
+                                wrapped += char;
+                                count++;
+                                if(count >= 12 && char !== ' ') {
+                                    wrapped += '<br>';
+                                    count = 0;
+                                }
+                            }
+                            return `["${wrapped}"]`;
+                        }
+                        return match;
+                    });
+                } catch (err) { console.error("Auto-wrap error:", err); }
+            }
+            
+            try {
+                const { svg } = await mermaid.render('mermaid-svg-' + Date.now(), graphDef);
+                container.innerHTML = svg;
+            } catch (e) {
+                console.error("Mermaid Render Error:", e);
+                container.innerHTML = `<div style="color:red;">渲染错误: ${e.message}</div>`;
+            }
+        }
+
+        window.toggleDirection = () => {
+            currentDirection = currentDirection === 'LR' ? 'TD' : 'LR';
+            updateStatus();
+            renderGraph();
+        };
+
+        window.toggleWrap = () => {
+            isWrapped = !isWrapped;
+            updateStatus();
+            renderGraph();
+        };
+
+        function updateStatus() {
+            document.getElementById('btn-dir').innerText = `切换布局: ${currentDirection === 'LR' ? '左右 (LR)' : '上下 (TD)'}`;
+            document.getElementById('btn-wrap').innerText = `文字换行: ${isWrapped ? '开' : '关'}`;
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            updateStatus();
+            renderGraph();
+        });
+    </script>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #f8f9fa; 
+            margin: 0; 
+            padding: 10px;
+            padding-bottom: 50px; 
+            -webkit-tap-highlight-color: transparent;
+        }
+        .container { 
+            background: white; 
+            padding: 15px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+            width: 100%;
+            box-sizing: border-box;
+            overflow-x: hidden; 
+        }
+        h1 { 
+            text-align: center; 
+            color: #333; 
+            margin: 10px 0; 
+            font-size: 1.2rem;
+            line-height: 1.4;
+        }
+        p { 
+            text-align: center; 
+            color: #666; 
+            margin-bottom: 20px; 
+            font-size: 0.9rem; 
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            box-shadow: 0 2px 4px rgba(0,123,255,0.2);
+        }
+        .btn:hover { background: #0056b3; }
+        .btn:active { transform: scale(0.98); }
+        .mermaid-wrapper {
+            width: 100%;
+            overflow: auto; 
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            min-height: 300px;
+            -webkit-overflow-scrolling: touch; 
+        }
+        svg { max-width: none !important; }
+        @media (max-width: 768px) {
+            body { padding: 5px; }
+            .container { padding: 10px; }
+            h1 { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>短语录剪辑 SOP</h1>
+        <p>音频处理、画面美化与卡点节奏规范</p>
+        
+        <div class="controls">
+            <button id="btn-dir" class="btn" onclick="window.toggleDirection()">切换布局</button>
+            <button id="btn-wrap" class="btn" onclick="window.toggleWrap()">文字换行</button>
+        </div>
+
+        <div class="mermaid-wrapper">
+            <div id="mermaid-view" class="mermaid">
+                <div style="text-align:center; padding: 20px; color: #999;">Loading visualization...</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

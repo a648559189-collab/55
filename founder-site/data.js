@@ -11,6 +11,42 @@ const USER_PROFILE = {
 
 const LOG_DATA = [
     {
+        id: 6,
+        date: "2025-12-04",
+        weekday: "周四",
+        title: "短语录剪辑实操 SOP",
+        type: "sop",
+        tags: ["语录剪辑", "音频处理", "对标"],
+        tasks: [
+            { text: "环境音降噪与人声分离处理", done: false },
+            { text: "快手找对标，参考封面与BGM", done: false },
+            { text: "制作一条短语录视频并应用德古拉滤镜", done: false }
+        ],
+        results: "整理了短语录剪辑的详细SOP，包含音频降噪、字幕参数及结尾特效。",
+        reflection: "短语录核心在于音乐卡点和氛围感，结尾的留白处理很重要。",
+        meetingMinutes: "1. 音频：室内降噪，环境音大人声分离。\n2. 画面：根据IP开磨皮，去头去敏。\n3. 节奏：慢节奏卡点，入场闪现出场渐隐。\n4. 结尾：视频关音量，BGM 15-20，加德古拉滤镜(70)。",
+        mindmapUrl: "video_sop_short_quotes.html",
+        mindmapImg: "https://images.unsplash.com/photo-1478737270239-2f02b77ac618?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+    },
+    {
+        id: 5,
+        date: "2025-12-04",
+        weekday: "周四",
+        title: "12.4号运营脑图 & 剪辑对接 SOP",
+        type: "study",
+        tags: ["养号", "运营", "剪辑对接"],
+        tasks: [
+            { text: "前三天视频复盘，指出需改正之处", done: false },
+            { text: "对接明天素材，下班前导出并命名", done: false },
+            { text: "不同平台违规词删减，封面标注", done: false }
+        ],
+        results: "制定了12.4号运营脑图，明确了养号、选题及发文策略。",
+        reflection: "需严格执行剪辑与运营的对接流程，保证素材及时交付与合规。",
+        meetingMinutes: "1. 剪辑对接：\n- 前三天视频逐条复盘。\n- 每日下班前导出视频并命名发运营。\n- 根据平台要求删减违规词，封面标注平台。\n- 素材剩余1-2条时提前找运营。\n- 空闲多刷IP账号找网感。\n\n2. 素材对接：\n- 拍摄后素材上传电脑/网盘并命名。",
+        mindmapUrl: "video_sop_12_4.html",
+        mindmapImg: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+    },
+    {
         id: 4,
         date: "2025-12-03",
         weekday: "周三",
