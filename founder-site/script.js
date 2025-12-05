@@ -167,16 +167,41 @@ function initApp() {
     // 1. Intro Animation (Gesture)
     setupGestureIntro();
 
-    // 2. Data Rendering
-    loadUserProfile();
-    loadDailyLog(LOG_DATA[0]); // Load latest
-    renderAttendanceCalendar(); // Default to current month
+    // 2. Fetch Data & Render
+    fetchDataAndRender();
 
     // 3. Event Listeners
     setupInteractions();
     
     // 4. Audio Init (Immediate)
     AudioManager.init();
+}
+
+let LOG_DATA = []; // Global variable to store fetched logs
+let USER_PROFILE = {}; // Global variable for profile
+
+async function fetchDataAndRender() {
+    try {
+        const response = await fetch('data.json?v=' + new Date().getTime()); // Cache bust
+        const data = await response.json();
+        
+        LOG_DATA = data.logs;
+        USER_PROFILE = data.userProfile;
+
+        // 2. Data Rendering
+        loadUserProfile();
+        if (LOG_DATA.length > 0) {
+            loadDailyLog(LOG_DATA[0]); // Load latest
+        }
+        renderAttendanceCalendar(); // Default to current month
+        
+        // Render history timeline after data is loaded
+        renderHistoryTimeline();
+
+    } catch (error) {
+        console.error("Error loading data:", error);
+        logToScreen("数据加载失败: " + error.message);
+    }
 }
 
 function renderAttendanceCalendar_OLD() {
@@ -885,27 +910,44 @@ function loadDailyLog(log, skipListRender = false) {
     // Date
     document.getElementById('current-date-display').innerText = log.date + ' · ' + (log.weekday || '');
 
-    // Results & Reflection & Meeting
+    // Results & Reflection
     document.getElementById('daily-results').innerText = log.results || '';
     document.getElementById('daily-reflection').innerText = log.reflection || '';
     
+    // Meeting Minutes Logic
     const meetingDiv = document.getElementById('meeting-minutes');
-    if (meetingDiv) meetingDiv.innerText = log.meetingMinutes || '暂无记录';
-
-    // Initialize Mindmap Section
-    if (log.id !== -1) {
-        if (!skipListRender) {
-            renderMindmapList(log.id);
-        } else {
-            // Just update active state in list
-            document.querySelectorAll('.mindmap-item').forEach(el => el.classList.remove('active'));
-            // Try to find the list item by some attribute if possible, or just rely on user click
-            // Since this is called from onclick, the class is likely already set or handled there
+    if (meetingDiv) {
+        meetingDiv.innerText = log.meetingMinutes || '';
+        const card = meetingDiv.closest('.tech-card');
+        if (card) {
+            if (!log.meetingMinutes || log.meetingMinutes.trim() === '') {
+                card.style.display = 'none';
+            } else {
+                card.style.display = 'block';
+            }
         }
-    } else {
-        document.getElementById('mindmap-preview').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#666;">本日无 SOP 数据</div>';
-        document.getElementById('mindmap-info').innerText = '';
-        if (!skipListRender) renderMindmapList(-1);
+    }
+
+    // SOP/Mindmap Logic
+    const sopCard = document.getElementById('mindmap-preview')?.closest('.tech-card');
+    if (sopCard) {
+        if (!log.mindmapUrl || log.mindmapUrl.trim() === '') {
+            sopCard.style.display = 'none';
+        } else {
+            sopCard.style.display = 'block';
+            // Initialize Mindmap Section only if visible
+            if (log.id !== -1) {
+                if (!skipListRender) {
+                    renderMindmapList(log.id);
+                } else {
+                    document.querySelectorAll('.mindmap-item').forEach(el => el.classList.remove('active'));
+                }
+            } else {
+                document.getElementById('mindmap-preview').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#666;">本日无 SOP 数据</div>';
+                document.getElementById('mindmap-info').innerText = '';
+                if (!skipListRender) renderMindmapList(-1);
+            }
+        }
     }
 }
 

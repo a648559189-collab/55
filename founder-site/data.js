@@ -6,10 +6,27 @@ const USER_PROFILE = {
     startDate: "2025-11-30",
     phone: "15992677659",
     totalProgress: 35, // Total progress %
-    attendanceLog: ["2025-11-30", "2025-12-03", "2025-12-04"] // Example checked dates
+    attendanceLog: ["2025-11-30", "2025-12-03", "2025-12-04", "2025-12-05"] // Example checked dates
 };
 
 const LOG_DATA = [
+    {
+        id: 7,
+        date: "2025-12-05",
+        weekday: "周五",
+        title: "12.5号剪辑复盘 & 养号规划",
+        type: "study",
+        tags: ["剪辑效率", "对标", "养号", "违禁词"],
+        tasks: [
+            { text: "再办一张新卡，把五组号养好", done: false },
+            { text: "剪辑保底20条", done: false }
+        ],
+        results: "1. 再办一张新卡，把五组号养好。\n2. 剪辑保底20条。",
+        reflection: "1. 剪辑第二天剪了十五条语录。\n   问题：效率低，步骤有点乱。\n2. 严格按爆款对标，不要自己创新。\n   问题：找不到燕姐对标就找同行。\n3. 有空就养号，不要老顾着剪辑。\n   问题：今天只养了两个新号的快手和抖音。\n4. 剪辑的违禁词严格检查，不用繁体代替。",
+        meetingMinutes: "",
+        mindmapUrl: "",
+        mindmapImg: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+    },
     {
         id: 6,
         date: "2025-12-04",
@@ -18,13 +35,13 @@ const LOG_DATA = [
         type: "sop",
         tags: ["语录剪辑", "音频处理", "对标"],
         tasks: [
-            { text: "环境音降噪与人声分离处理", done: false },
-            { text: "快手找对标，参考封面与BGM", done: false },
-            { text: "制作一条短语录视频并应用德古拉滤镜", done: false }
+            { text: "环境音降噪与人声分离处理", done: true },
+            { text: "快手找对标，参考封面与BGM", done: true },
+            { text: "制作一条短语录视频并应用德古拉滤镜", done: true }
         ],
         results: "整理了短语录剪辑的详细SOP，包含音频降噪、字幕参数及结尾特效。",
         reflection: "短语录核心在于音乐卡点和氛围感，结尾的留白处理很重要。",
-        meetingMinutes: "1. 音频：室内降噪，环境音大人声分离。\n2. 画面：根据IP开磨皮，去头去敏。\n3. 节奏：慢节奏卡点，入场闪现出场渐隐。\n4. 结尾：视频关音量，BGM 15-20，加德古拉滤镜(70)。",
+        meetingMinutes: "1. 字体规范：思源宋体，行间距5，列间距1，字体尽量大接近横屏满。\n2. 音量：IP人声 > BGM，必须用手机试听。\n3. 禁忌：前期老老实实照做，禁止创新；慢动作人声不要。\n4. 结尾：视频关音量，BGM调大，画面慢动作放大(短)。",
         mindmapUrl: "video_sop_short_quotes.html",
         mindmapImg: "https://images.unsplash.com/photo-1478737270239-2f02b77ac618?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
     },
@@ -32,17 +49,16 @@ const LOG_DATA = [
         id: 5,
         date: "2025-12-04",
         weekday: "周四",
-        title: "12.4号运营脑图 & 剪辑对接 SOP",
+        title: "12.4号运营脑图 & 总结",
         type: "study",
-        tags: ["养号", "运营", "剪辑对接"],
+        tags: ["养号", "运营", "入职"],
         tasks: [
-            { text: "前三天视频复盘，指出需改正之处", done: false },
-            { text: "对接明天素材，下班前导出并命名", done: false },
-            { text: "不同平台违规词删减，封面标注", done: false }
+            { text: "养号 (刷对标)", done: false },
+            { text: "剪辑十二段视频", done: false }
         ],
-        results: "制定了12.4号运营脑图，明确了养号、选题及发文策略。",
-        reflection: "需严格执行剪辑与运营的对接流程，保证素材及时交付与合规。",
-        meetingMinutes: "1. 剪辑对接：\n- 前三天视频逐条复盘。\n- 每日下班前导出视频并命名发运营。\n- 根据平台要求删减违规词，封面标注平台。\n- 素材剩余1-2条时提前找运营。\n- 空闲多刷IP账号找网感。\n\n2. 素材对接：\n- 拍摄后素材上传电脑/网盘并命名。",
+        results: "1. 办了入职\n2. 课程学完，实操剪了一个视频\n3. 办了两张电话卡\n4. 租的三台手机到了\n5. 后天再去办张卡 (目前四个设备四张卡)",
+        reflection: "老老实实跟着做，前期禁止创新 🚫。严格执行剪辑与运营的对接流程。",
+        meetingMinutes: "1. 核心原则：老老实实跟着做，前期禁止创新。\n2. 对标：刷对标搜关键词，看封面、字体、背景音乐、卡点节奏。\n3. 设备：目前到位4个设备4张卡，养号准备就绪。",
         mindmapUrl: "video_sop_12_4.html",
         mindmapImg: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
     },
