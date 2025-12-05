@@ -167,8 +167,16 @@ function initApp() {
     // 1. Intro Animation (Gesture)
     setupGestureIntro();
 
-    // 2. Fetch Data & Render
-    fetchDataAndRender();
+    // 2. Render Initial Data
+    // Note: LOG_DATA and USER_PROFILE are loaded from data.js
+    loadUserProfile();
+    if (typeof LOG_DATA !== 'undefined' && LOG_DATA.length > 0) {
+        loadDailyLog(LOG_DATA[0]); // Load latest
+    } else {
+        console.warn("LOG_DATA not found or empty");
+    }
+    renderAttendanceCalendar(); // Default to current month
+    renderHistoryTimeline();
 
     // 3. Event Listeners
     setupInteractions();
@@ -177,32 +185,7 @@ function initApp() {
     AudioManager.init();
 }
 
-let LOG_DATA = []; // Global variable to store fetched logs
-let USER_PROFILE = {}; // Global variable for profile
-
-async function fetchDataAndRender() {
-    try {
-        const response = await fetch('data.json?v=' + new Date().getTime()); // Cache bust
-        const data = await response.json();
-        
-        LOG_DATA = data.logs;
-        USER_PROFILE = data.userProfile;
-
-        // 2. Data Rendering
-        loadUserProfile();
-        if (LOG_DATA.length > 0) {
-            loadDailyLog(LOG_DATA[0]); // Load latest
-        }
-        renderAttendanceCalendar(); // Default to current month
-        
-        // Render history timeline after data is loaded
-        renderHistoryTimeline();
-
-    } catch (error) {
-        console.error("Error loading data:", error);
-        logToScreen("数据加载失败: " + error.message);
-    }
-}
+// Note: LOG_DATA and USER_PROFILE are assumed to be global from data.js
 
 function renderAttendanceCalendar_OLD() {
     // Removed
