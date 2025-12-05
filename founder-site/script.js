@@ -168,14 +168,17 @@ function initApp() {
     setupGestureIntro();
 
     // 2. Render Initial Data
-    // Note: LOG_DATA and USER_PROFILE are loaded from data.js
+    // Data loaded from data.js into window object
     loadUserProfile();
-    if (typeof LOG_DATA !== 'undefined' && LOG_DATA.length > 0) {
-        loadDailyLog(LOG_DATA[0]); // Load latest
+    
+    const logs = window.LOG_DATA;
+    if (logs && logs.length > 0) {
+        loadDailyLog(logs[0]); // Load latest
     } else {
         console.warn("LOG_DATA not found or empty");
     }
-    renderAttendanceCalendar(); // Default to current month
+    
+    renderAttendanceCalendar(); 
     renderHistoryTimeline();
 
     // 3. Event Listeners
@@ -185,7 +188,9 @@ function initApp() {
     AudioManager.init();
 }
 
-// Note: LOG_DATA and USER_PROFILE are assumed to be global from data.js
+// Constants ref
+const LOG_DATA = window.LOG_DATA || [];
+const USER_PROFILE = window.USER_PROFILE || {};
 
 function renderAttendanceCalendar_OLD() {
     // Removed

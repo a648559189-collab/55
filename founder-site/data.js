@@ -1,6 +1,6 @@
 // 筑梦OS数据核心 v2.0
 
-const USER_PROFILE = {
+window.USER_PROFILE = {
     name: "何铖博",
     role: "剪辑筑梦者",
     startDate: "2025-11-30",
@@ -9,7 +9,7 @@ const USER_PROFILE = {
     attendanceLog: ["2025-11-30", "2025-12-03", "2025-12-04", "2025-12-05"] // Example checked dates
 };
 
-const LOG_DATA = [
+window.LOG_DATA = [
     {
         id: 7,
         date: "2025-12-05",
