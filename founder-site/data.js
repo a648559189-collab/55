@@ -6,10 +6,28 @@ window.USER_PROFILE = {
     startDate: "2025-11-30",
     phone: "15992677659",
     totalProgress: 35, // Total progress %
-    attendanceLog: ["2025-11-30", "2025-12-03", "2025-12-04", "2025-12-05"] // Example checked dates
+    attendanceLog: ["2025-11-30", "2025-12-03", "2025-12-04", "2025-12-05", "2025-12-06"] // Example checked dates
 };
 
 window.LOG_DATA = [
+    {
+        id: 8,
+        date: "2025-12-06",
+        weekday: "周六",
+        title: "12.6号剪辑总结 & 养号第一天",
+        type: "study",
+        tags: ["剪辑", "养号", "流程"],
+        tasks: [
+            { text: "问丹姐发作品流程", done: false },
+            { text: "剪辑二十条", done: false },
+            { text: "继续养号", done: false }
+        ],
+        results: "1. 问丹姐发作品流程\n2. 剪辑二十条\n3. 继续养号",
+        reflection: "1. 剪辑19条\n2. 养号四个号第一天",
+        meetingMinutes: "",
+        mindmapUrl: "",
+        mindmapImg: "https://images.unsplash.com/photo-1611162617474-5b21e879e113?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+    },
     {
         id: 7,
         date: "2025-12-05",
