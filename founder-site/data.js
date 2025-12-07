@@ -6,10 +6,29 @@ window.USER_PROFILE = {
     startDate: "2025-11-30",
     phone: "15992677659",
     totalProgress: 35, // Total progress %
-    attendanceLog: ["2025-11-30", "2025-12-03", "2025-12-04", "2025-12-05", "2025-12-06"] // Example checked dates
+    attendanceLog: ["2025-11-30", "2025-12-03", "2025-12-04", "2025-12-05", "2025-12-06", "2025-12-07"] // Example checked dates
 };
 
 window.LOG_DATA = [
+    {
+        id: 9,
+        date: "2025-12-07",
+        weekday: "周日",
+        title: "12.7号剪辑复盘 & 融媒宝流程",
+        type: "study",
+        tags: ["融媒宝", "养号", "剪辑优化"],
+        tasks: [
+            { text: "养号第三天", done: false },
+            { text: "视频号每个号发布十条自拍", done: false },
+            { text: "抖音单独高清发布 (防实名)", done: false },
+            { text: "定时发布后天内容", done: false }
+        ],
+        results: "1. 养号第三天\n2. 视频号每个号发布十条自拍\n3. 抖音先单独高清发布 (可能弹实名)\n4. 定时发布后天内容",
+        reflection: "1. 今日复盘：\n   - 办了第五张卡\n   - 剪辑12条\n   - 新号养号第二天\n   - 学习了融媒宝流程\n\n2. 剪辑问题：\n   - 违禁词细节不到位，调整流程：先改违禁词\n   - 缩放特效需要优化",
+        meetingMinutes: "1. 纪律：不迟到。\n2. 策略：在有能力把握好已有账号基础上多起号，量变引起质变。",
+        mindmapUrl: "",
+        mindmapImg: "https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+    },
     {
         id: 8,
         date: "2025-12-06",
