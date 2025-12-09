@@ -6,10 +6,28 @@ window.USER_PROFILE = {
     startDate: "2025-11-30",
     phone: "15992677659",
     totalProgress: 35, // Total progress %
-    attendanceLog: ["2025-11-30", "2025-12-03", "2025-12-04", "2025-12-05", "2025-12-06", "2025-12-07"] // Example checked dates
+    attendanceLog: ["2025-11-30", "2025-12-03", "2025-12-04", "2025-12-05", "2025-12-06", "2025-12-07", "2025-12-09"] // Example checked dates
 };
 
 window.LOG_DATA = [
+    {
+        id: 10,
+        date: "2025-12-09",
+        weekday: "周二",
+        title: "12.9号 账号矩阵扩充 & 流量分析",
+        type: "study",
+        tags: ["账号矩阵", "违规自查", "流量分析", "小红书"],
+        tasks: [
+            { text: "及时检查快手账号作品状态", done: false },
+            { text: "当天任务完成找丹姐", done: false },
+            { text: "新拿的四个号养好了找丹姐", done: false }
+        ],
+        results: "1. 增加快手号两个、小红书一个、抖音一个\n2. 剪辑二十条\n3. 流量分析：跑起来流量的是没引导、纯励志、感情等",
+        reflection: "1. 账号盘点：目前快手号六个、小红书三个、抖音四个、视频号一个 (均为老号)。\n2. 流量分析：注重小红书（最近查得严），需检查违规词。",
+        meetingMinutes: "1. 账号自查：及时检查快手账号作品状态，检查是否违规，违规及时删掉。\n2. 运营策略：涨到五六千粉就不发单一的语录了，准备转类型。\n3. 汇报机制：当天任务完成找丹姐；新拿的四个号养好了找丹姐。",
+        mindmapUrl: "",
+        mindmapImg: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+    },
     {
         id: 9,
         date: "2025-12-07",
